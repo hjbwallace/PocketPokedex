@@ -3,3 +3,68 @@ body {
   font-family: Verdana, sans-serif;
   margin: 0;
 }
+
+#set {
+  display: flex;
+  justify-content: center;
+}
+
+.card-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  .card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: repeat(2, 1fr);
+    padding: 8px;
+    width: 160px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    
+    &:hover:not(.card-missing) {
+      filter: brightness(1.05);
+    }
+
+    .name {
+      font-weight: bold;
+    }
+
+    .id {
+      font-size: small;
+      grid-row: 2;
+    }
+
+    .count {
+      grid-column: 2;
+      grid-row: 1 / -1;
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+      padding: 8px;
+      background-color: gainsboro;
+      border-radius: 4px;
+    }
+  }
+
+  .card-grass {
+    background-color: #68b023;
+  }
+
+  .card-fire {
+    background-color: #ec8146;
+  }
+
+  .card-missing {
+    background-color: gainsboro;
+
+    .count {
+      display: none;
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    max-width: 80%;
+  }
+}
