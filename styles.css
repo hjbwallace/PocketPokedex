@@ -4,12 +4,12 @@ body {
   margin: 0;
 }
 
-#set {
+#sets {
   display: flex;
   justify-content: center;
 }
 
-.card-list {
+.set-cards {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;

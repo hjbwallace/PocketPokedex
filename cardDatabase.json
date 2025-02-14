@@ -1,0 +1,48 @@
+[
+  {
+    "name": "Genetic Apex",
+    "cards": [ 
+      {
+        "name": "Bulbasaur",
+        "number": 1,
+        "rarity": "d1",
+        "type": 1
+      }, {
+        "name": "Ivysaur",
+        "number": 2,
+        "rarity": "d2",
+        "type": 1
+      }, {
+        "name": "Venusaur",
+        "number": 3,
+        "rarity": "d3",
+        "type": 1
+      }, {
+        "name": "Venusaur ex",
+        "number": 4,
+        "rarity": "d4",
+        "type": 1
+      }, {
+        "name": "Charmander",
+        "number": 33,
+        "rarity": "d1",
+        "type": 2
+      }, {
+        "name": "Charmeleon",
+        "number": 34,
+        "rarity": "d2",
+        "type": 2
+      }, {
+        "name": "Charizard",
+        "number": 35,
+        "rarity": "d3",
+        "type": 2
+      }, {
+        "name": "Charizard ex",
+        "number": 36,
+        "rarity": "d4",
+        "type": 2
+      }
+    ]
+  }
+]
