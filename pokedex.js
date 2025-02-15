@@ -70,7 +70,7 @@ function displayCards(sets) {
       idElement.classList.add('id');
       idElement.textContent = `#${card.number.toString().padStart(3, '0')} ${rarityMap[card.rarity]}`;
 
-      const countElement = document.createElement('span');
+      const countElement = document.createElement('button');
       countElement.classList.add('count');
       countElement.textContent = '0';
 
@@ -86,12 +86,17 @@ function displayCards(sets) {
 function configureCards() {
   const cards = document.querySelectorAll('.card');
   cards.forEach((card) => {
-    card.addEventListener('click', () => updateCardCount(card, 1));
 
-    card.addEventListener('contextmenu', (event) => {
-      event.preventDefault(); // prevent the default context menu from appearing
+    updateCardCount(card, 0);
+
+    const countElement = card.querySelector('.count');
+    countElement.addEventListener('click', (event) => {
+      event.stopPropagation();
       updateCardCount(card, -1);
+
     });
+
+    card.addEventListener('click', () => updateCardCount(card, 1));
 
     function updateCardCount(card, increment) {
       const countElement = card.querySelector('.count');

@@ -63,6 +63,7 @@ body {
     width: 160px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
     border-radius: 8px;
+    border-style: solid;
     
     &:hover:not(.card-missing) {
       filter: brightness(1.05);
@@ -136,9 +137,12 @@ body {
   .card-missing {
     background-color: var(--inactive);
     color: var(--inactive-dark);
+    border-color: var(--inactive-dark);
 
     .count {
-      display: none;
+      color: var(--inactive-dark);
+      border-color: var(--inactive-dark);
+      border-style: solid;
     }
   }
 
