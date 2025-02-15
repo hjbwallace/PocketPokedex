@@ -1,11 +1,52 @@
+:root {
+  --colorless: #D2D0CF;
+  --colorless-light: #E2E0E0;
+  --colorless-dark:	#898787;
+  --darkness:	#2E7077;
+  --darkness-light:	#77A2A7;
+  --darkness-dark:	#1E494D;
+  --dragon:	#948F31;
+  --dragon-light:	#B9B679;
+  --dragon-dark:	#605D20;
+  --fairy:	#D6457E;
+  --fairy-light:	#E486AB;
+  --fairy-dark:	#8B2D52;
+  --fighting:	#B16232;
+  --fighting-light:	#CC997A;
+  --fighting-dark:	#734021;
+  --fire:	#D8223B;
+  --fire-light:	#E66F80;
+  --fire-dark:	#8C1626;
+  --grass:	#19A648;
+  --grass-light:	#6AC588;
+  --grass-dark:	#106C2F;
+  --lightning:	#FCD021;
+  --lightning-light:	#FDE06F;
+  --lightning-dark:	#A48715;
+  --metal:	#9B9E8C;
+  --metal-light:	#BEC0B4;
+  --metal-dark:	#65675B;
+  --psychic:	#957DAB;
+  --psychic-light:	#BAABC8;
+  --psychic-dark:	#61516F;
+  --water:	#05A8D9;
+  --water-light:	#5DC6E6;
+  --water-dark:	#036D8D;
+  --trainer: #CBCBCB;
+  --trainer-light: #E4E4E4;
+  --trainer-dark: #B2B2B2;
+  --body: #E7E7E7;
+  --inactive: #E1E1E1;
+  --inactive-dark: #929292;
+}
+
 body {
-  background-color: #e7e7e7;
+  background-color: var(--body);
   font-family: Verdana, sans-serif;
   margin: 0;
 }
 
 #sets {
-  display: flex;
   justify-content: center;
 }
 
@@ -43,21 +84,58 @@ body {
       align-items: center;
       font-weight: bold;
       padding: 8px;
-      background-color: gainsboro;
+      background-color: var(--colorless);
       border-radius: 4px;
     }
   }
 
   .card-grass {
-    background-color: #68b023;
+    background-color: var(--grass-light);
   }
 
   .card-fire {
-    background-color: #ec8146;
+    background-color: var(--fire-light);
+  }
+
+  .card-water {
+    background-color: var(--water-light);
+  }
+
+  .card-lightning {
+    background-color: var(--lightning-light);
+  }
+
+  .card-fighting {
+    background-color: var(--fighting-light);
+  }
+
+  .card-psychic {
+    background-color: var(--psychic-light);
+  }
+
+  .card-darkness {
+    background-color: var(--darkness-light);
+  }
+
+  .card-metal {
+    background-color: var(--metal-light);
+  }
+
+  .card-dragon {
+    background-color: var(--dragon-light);
+  }
+
+  .card-colorless {
+    background-color: var(--colorless-light);
+  }
+
+  .card-tool, .card-item, .card-supporter {
+    background-color: var(--trainer);
   }
 
   .card-missing {
-    background-color: gainsboro;
+    background-color: var(--inactive);
+    color: var(--inactive-dark);
 
     .count {
       display: none;
