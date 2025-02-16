@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <script src="./pokedex.js"></script>
-    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="../pokedex.js"></script>
+    <link rel="stylesheet" type="text/css" href="../styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pocket Pokedex</title>
   </head>
@@ -10,9 +10,9 @@
     <main>
 
       <h1>Pocket Pokedex</h1>
-      <h2>My Collection</h2>
+      <h2>View Collection</h2>
 
-      <a href="/view/?A1-123">View Collection</a>
+      <a href="/">Home</a>
 
       <section id="sets">
       </section>
@@ -20,6 +20,6 @@
     </main>
   </body>
   <script>
-    window.onload = () => { loadCards(localCardCollection); };
+    window.onload = () => { loadCards(viewCardCollection); };
   </script>
 </html>

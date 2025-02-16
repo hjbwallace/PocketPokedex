@@ -1,12 +1,8 @@
-function initialise() {
-  loadCards();
-}
-
-async function loadCards() {
+async function loadCards(cardCollection) {
   try {
-    const response = await fetch('cardDatabase.json');
+    const response = await fetch('/cardDatabase.json');
     const data = await response.json();
-    displayCards(data);
+    displayCards(data, cardCollection);
   } catch (error) {
     console.error('Error loading card data:', error);
   }
@@ -39,10 +35,14 @@ const typeMap = {
   12: 'Tool'
 }
 
-function displayCards(sets) {
+function displayCards(sets, cardCollection) {
   const setsElement = document.querySelector('#sets');
 
   sets.forEach((set) => {
+
+    if (!cardCollection.showEmptySets && cardCollection.getSetCount(set.code) <= 0) 
+      return;
+
     const setElement = document.createElement('div');
     setElement.classList.add('set');
     setsElement.appendChild(setElement);
@@ -78,13 +78,15 @@ function displayCards(sets) {
 
       setCardsElement.appendChild(cardElement);
 
-      configureCardCounter(set.code, card.number, cardElement, countElement);
-      setCardCount(set.code, card.number, cardElement, countElement);
+      if (!cardCollection.isReadOnly)
+        configureCardCounter(cardCollection, set.code, card.number, cardElement, countElement);
+
+      setCardCount(cardCollection, set.code, card.number, cardElement, countElement);
     });
   });
 }
 
-function configureCardCounter(set, cardNumber, cardElement, countElement) {
+function configureCardCounter(cardCollection, set, cardNumber, cardElement, countElement) {
   countElement.addEventListener('click', (event) => {
     event.stopPropagation();
 
@@ -92,7 +94,7 @@ function configureCardCounter(set, cardNumber, cardElement, countElement) {
       return;
 
     cardCollection.removeCard(set, cardNumber);
-    setCardCount(set, cardNumber, cardElement, countElement);
+    setCardCount(cardCollection, set, cardNumber, cardElement, countElement);
   });
 
   cardElement.addEventListener('click', () => {
@@ -101,11 +103,11 @@ function configureCardCounter(set, cardNumber, cardElement, countElement) {
       return;
 
     cardCollection.addCard(set, cardNumber);
-    setCardCount(set, cardNumber, cardElement, countElement);
+    setCardCount(cardCollection, set, cardNumber, cardElement, countElement);
   });
 }
 
-function setCardCount(set, cardNumber, cardElement, countElement)
+function setCardCount(cardCollection, set, cardNumber, cardElement, countElement)
 {
   var cardCount = cardCollection.getCardCount(set, cardNumber);
   console.log('Card count is ' + cardCount);
@@ -118,52 +120,144 @@ function setCardCount(set, cardNumber, cardElement, countElement)
   }
 }
 
-class CardCollection {
-  #storageKey = 'pocketPokedex';
-  #cards = {};
 
-  constructor() {
-    this.#load();
-  }
 
-  #load() {
-    const storedData = localStorage.getItem(this.#storageKey);
-    if (storedData) {
-      this.#cards = JSON.parse(storedData);
-    }
-  }
+class CardCollectionSerializer {
+  static serialize(cardCollection) {
+    const serialized = [];
 
-  #save() {
-    localStorage.setItem(this.#storageKey, JSON.stringify(this.#cards));
-  }
+    for (const set in cardCollection) {
+      const cards = cardCollection[set];
+      const cardStrings = [];
 
-  getCardCount(set, number) {
-    return this.#cards[set] && this.#cards[set][number] 
-      ? this.#cards[set][number] 
-      : 0;
-  }
-
-  addCard(set, number) { this.#updateCardCount(set, number, 1); }
-
-  removeCard(set, number) { this.#updateCardCount(set, number, -1); }
-
-  #updateCardCount(set, number, delta) {
-    if (!this.#cards[set]) {
-      this.#cards[set] = {};
-    }
-
-    if (this.#cards[set][number]) {
-      this.#cards[set][number] += delta;
-      if (this.#cards[set][number] <= 0) {
-        delete this.#cards[set][number];
+      if (!Object.keys(cards).length > 0) 
+        continue;
+  
+      for (let i = 1; i <= Math.max(...Object.keys(cards)); i++) {
+        const count = cards[i] || 0;
+        cardStrings.push(`${count}`);
       }
-    } else if (delta > 0) {
-      this.#cards[set][number] = delta;
+  
+      const setString = `${set}-${cardStrings.join('')}`;
+      serialized.push(setString);
     }
 
-    this.#save();
+    return serialized.join('&');
+  }
+
+  static deserialize(serialized) {
+    const cardCollection = {};
+    const sets = serialized.split('&');
+
+    sets.forEach(set => {
+      const [setName, cardCounts] = set.split('-');
+      const cards = {};
+
+      if (!cardCounts || cardCounts.length < 1)
+        return;
+      
+      for (let i = 0; i < cardCounts.length; i++) {
+        const cardNumber = i + 1;
+        const count = parseInt(cardCounts[i]);
+
+        if (count > 0) {
+          cards[cardNumber] = count;
+        }
+      }
+
+      cardCollection[setName] = cards;
+    });
+
+    return cardCollection;
   }
 }
 
-window.onload = initialise;
-const cardCollection = new CardCollection();
+class CardCollection {
+  _cards = {};
+
+  isReadOnly;
+  showEmptySets;
+
+  constructor(cards, isReadOnly, showEmptySets) {
+    if (cards)
+      this._cards = cards;
+
+    this.isReadOnly = isReadOnly;
+    this.showEmptySets = showEmptySets;
+  }
+
+  getCardCount(set, number) {
+    return this._cards[set] && this._cards[set][number] 
+      ? this._cards[set][number] 
+      : 0;
+  }
+
+  getSetCount(set) {
+    return this._cards[set]
+      ? Object.keys(this._cards[set]).length
+      : 0;
+  }
+
+  _updateCardCount(set, number, delta) {
+    if (this.isReadOnly)
+      return;
+    
+    if (!this._cards[set]) {
+      this._cards[set] = {};
+    }
+
+    if (this._cards[set][number]) {
+      this._cards[set][number] += delta;
+      if (this._cards[set][number] <= 0) {
+        delete this._cards[set][number];
+      }
+    } else if (delta > 0) {
+      this._cards[set][number] = delta;
+    }
+  }
+}
+
+class LocalCardCollection extends CardCollection {
+  static #storageKey = 'pocketPokedex';
+
+  constructor() {
+    var cards = LocalCardCollection.loadCardsFromStorage();
+    super(cards, false, true);
+  }
+
+  static loadCardsFromStorage() {
+    const storedData = localStorage.getItem(LocalCardCollection.#storageKey);
+    if (storedData)
+      return JSON.parse(storedData);
+
+    return null;
+  }
+
+  addCard(set, number) { 
+    this._updateCardCount(set, number, 1); 
+    this.#saveCardsToStorage();
+  }
+
+  removeCard(set, number) { 
+    this._updateCardCount(set, number, -1); 
+    this.#saveCardsToStorage();
+  }
+
+  #saveCardsToStorage() {
+    localStorage.setItem(LocalCardCollection.#storageKey, JSON.stringify(this._cards));
+  }
+}
+
+class ViewCardCollection extends CardCollection {
+  isReadOnly = true;
+  showEmptySets = false;
+
+  constructor() {
+    var serialized = window.location.search.slice(1);
+    var cards = CardCollectionSerializer.deserialize(serialized);
+    super(cards, true, false);
+  }
+}
+
+const localCardCollection = new LocalCardCollection();
+const viewCardCollection = new ViewCardCollection();
