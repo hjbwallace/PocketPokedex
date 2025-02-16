@@ -7,7 +7,6 @@ async function loadCards() {
     const response = await fetch('cardDatabase.json');
     const data = await response.json();
     displayCards(data);
-    configureCards();
   } catch (error) {
     console.error('Error loading card data:', error);
   }
@@ -72,49 +71,91 @@ function displayCards(sets) {
 
       const countElement = document.createElement('button');
       countElement.classList.add('count');
-      countElement.textContent = '0';
 
       cardElement.appendChild(nameElement);
       cardElement.appendChild(idElement);
       cardElement.appendChild(countElement);
 
       setCardsElement.appendChild(cardElement);
+
+      configureCardCounter(set.code, card.number, cardElement, countElement);
+      setCardCount(set.code, card.number, cardElement, countElement);
     });
   });
 }
 
-function configureCards() {
-  const cards = document.querySelectorAll('.card');
-  cards.forEach((card) => {
-
-    updateCardCount(card, 0);
-
-    const countElement = card.querySelector('.count');
-    countElement.addEventListener('click', (event) => {
-      event.stopPropagation();
-      updateCardCount(card, -1);
-
-    });
-
-    card.addEventListener('click', () => updateCardCount(card, 1));
-
-    function updateCardCount(card, increment) {
-      const countElement = card.querySelector('.count');
-      const currentCount = parseInt(countElement.textContent);
-      const newCount = currentCount + increment;
-
-      if (newCount > 99 || newCount < 0)
-        return;
-      
-      countElement.textContent = newCount.toString();
-
-      if (newCount === 0) {
-        card.classList.add('card-missing');
-      } else {
-        card.classList.remove('card-missing');
-      }
-    }
+function configureCardCounter(set, cardNumber, cardElement, countElement) {
+  countElement.addEventListener('click', (event) => {
+    event.stopPropagation();
+    cardCollection.removeCard(set, cardNumber);
+    setCardCount(set, cardNumber, cardElement, countElement);
   });
+
+  cardElement.addEventListener('click', () => {
+    cardCollection.addCard(set, cardNumber);
+    setCardCount(set, cardNumber, cardElement, countElement);
+  });
+}
+
+function setCardCount(set, cardNumber, cardElement, countElement)
+{
+  var cardCount = cardCollection.getCardCount(set, cardNumber);
+  console.log('Card count is ' + cardCount);
+  countElement.textContent = cardCount.toString();
+
+  if (cardCount <= 0) {
+    cardElement.classList.add('card-missing');
+  } else {
+    cardElement.classList.remove('card-missing');
+  }
+}
+
+class CardCollection {
+  #storageKey = 'pocketPokedex';
+  #cards = {};
+
+  constructor() {
+    this.#load();
+  }
+
+  #load() {
+    const storedData = localStorage.getItem(this.#storageKey);
+    if (storedData) {
+      this.#cards = JSON.parse(storedData);
+    }
+  }
+
+  #save() {
+    localStorage.setItem(this.#storageKey, JSON.stringify(this.#cards));
+  }
+
+  getCardCount(set, number) {
+    return this.#cards[set] && this.#cards[set][number] 
+      ? this.#cards[set][number] 
+      : 0;
+  }
+
+  addCard(set, number) { this.#updateCardCount(set, number, 1); }
+
+  removeCard(set, number) { this.#updateCardCount(set, number, -1); }
+
+  #updateCardCount(set, number, delta) {
+    if (!this.#cards[set]) {
+      this.#cards[set] = {};
+    }
+
+    if (this.#cards[set][number]) {
+      this.#cards[set][number] += delta;
+      if (this.#cards[set][number] <= 0) {
+        delete this.#cards[set][number];
+      }
+    } else if (delta > 0) {
+      this.#cards[set][number] = delta;
+    }
+
+    this.#save();
+  }
 }
 
 window.onload = initialise;
+const cardCollection = new CardCollection();
