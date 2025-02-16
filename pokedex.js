@@ -87,11 +87,19 @@ function displayCards(sets) {
 function configureCardCounter(set, cardNumber, cardElement, countElement) {
   countElement.addEventListener('click', (event) => {
     event.stopPropagation();
+
+    if (cardCollection.getCardCount(set, cardNumber) <= 0)
+      return;
+
     cardCollection.removeCard(set, cardNumber);
     setCardCount(set, cardNumber, cardElement, countElement);
   });
 
   cardElement.addEventListener('click', () => {
+
+    if (cardCollection.getCardCount(set, cardNumber) >= 9)
+      return;
+
     cardCollection.addCard(set, cardNumber);
     setCardCount(set, cardNumber, cardElement, countElement);
   });
