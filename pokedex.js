@@ -264,18 +264,18 @@ class ViewCardCollection extends CardCollection {
 }
 
 function configureShareButton() {
-  const generateLinkBtn = document.getElementById('generate-link-btn');
-  const linkInput = document.getElementById('link-input');
-  const copyLinkBtn = document.getElementById('copy-link-btn');
+  const generateLinkButton = document.getElementById('generate-link');
+  const linkValue = document.getElementById('link-value');
+  const copyLinkButton = document.getElementById('copy-link');
 
-  generateLinkBtn.addEventListener('click', () => {
+  generateLinkButton.addEventListener('click', () => {
     const collectionSnapshot = localCardCollection.serialize();
     const url = `${window.location.protocol}//${window.location.host}/view?${collectionSnapshot}`;
-    linkInput.value = url;
+    linkValue.value = url;
   });
 
-  copyLinkBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(linkInput.value);
+  copyLinkButton.addEventListener('click', () => {
+    navigator.clipboard.writeText(linkValue.value);
   });
 }
 
