@@ -198,6 +198,10 @@ class CardCollection {
       : 0;
   }
 
+  serialize() {
+    return CardCollectionSerializer.serialize(this._cards);
+  }
+
   _updateCardCount(set, number, delta) {
     if (this.isReadOnly)
       return;
@@ -257,6 +261,22 @@ class ViewCardCollection extends CardCollection {
     var cards = CardCollectionSerializer.deserialize(serialized);
     super(cards, true, false);
   }
+}
+
+function configureShareButton() {
+  const generateLinkBtn = document.getElementById('generate-link-btn');
+  const linkInput = document.getElementById('link-input');
+  const copyLinkBtn = document.getElementById('copy-link-btn');
+
+  generateLinkBtn.addEventListener('click', () => {
+    const collectionSnapshot = localCardCollection.serialize();
+    const url = `${window.location.protocol}//${window.location.host}/view?${collectionSnapshot}`;
+    linkInput.value = url;
+  });
+
+  copyLinkBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(linkInput.value);
+  });
 }
 
 const localCardCollection = new LocalCardCollection();
