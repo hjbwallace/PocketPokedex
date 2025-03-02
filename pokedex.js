@@ -1,6 +1,6 @@
 async function loadCards(cardCollection) {
   try {
-    const response = await fetch('/cardDatabase.json');
+    const response = await fetch(`${rootUrl}/cardDatabase.json`);
     const data = await response.json();
     displayCards(data, cardCollection);
   } catch (error) {
@@ -265,19 +265,24 @@ class ViewCardCollection extends CardCollection {
 
 function configureShareButton() {
   const generateLinkButton = document.getElementById('generate-link');
-  const linkValue = document.getElementById('link-value');
   const copyLinkButton = document.getElementById('copy-link');
+  const linkValue = document.getElementById('link-value');
 
   generateLinkButton.addEventListener('click', () => {
     const collectionSnapshot = localCardCollection.serialize();
-    const url = `${window.location.protocol}//${window.location.host}/view?${collectionSnapshot}`;
+    const url = `${rootUrl}/view?${collectionSnapshot}`;
     linkValue.value = url;
   });
 
   copyLinkButton.addEventListener('click', () => {
-    navigator.clipboard.writeText(linkValue.value);
+    const linkValueString = linkValue.value.toString();
+    navigator.clipboard.writeText(linkValueString);
   });
 }
 
 const localCardCollection = new LocalCardCollection();
 const viewCardCollection = new ViewCardCollection();
+
+const rootUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? `${window.location.protocol}//${window.location.host}`
+  : `${window.location.protocol}//${window.location.host}/PocketPokedex`;
