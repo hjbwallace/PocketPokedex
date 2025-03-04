@@ -14,7 +14,7 @@
       <h1>Pocket Pokedex</h1>
       <h2>View Collection</h2>
 
-      <a href="/">Home</a>
+      <a id="home-link" href="">Home</a>
 
       <section id="sets">
       </section>
@@ -22,6 +22,9 @@
     </main>
   </body>
   <script>
-    window.onload = () => { loadCards(viewCardCollection); };
+    window.onload = () => { 
+      loadCards(viewCardCollection);
+      document.getElementById('home-link').href = rootUrl;
+    };
   </script>
 </html>
