@@ -83,6 +83,10 @@ function displayCards(sets, cardCollection) {
 
       setCardCount(cardCollection, set.code, card.number, cardElement, countElement);
     });
+
+    setHeading.addEventListener('click', () => {
+      setCardsElement.classList.toggle('hidden');
+    });
   });
 }
 

@@ -50,6 +50,13 @@ body {
   justify-content: center;
 }
 
+.set {
+  h3 {
+    cursor: pointer;
+    display: inline-block;
+  }
+}
+
 .set-cards {
   display: flex;
   flex-wrap: wrap;
@@ -149,4 +156,8 @@ body {
   @media screen and (min-width: 768px) {
     max-width: 80%;
   }
+}
+
+.hidden {
+  display: none;
 }
