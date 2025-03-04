@@ -90,31 +90,30 @@ function displayCards(sets, cardCollection) {
   });
 }
 
-function configureCardCounter(cardCollection, set, cardNumber, cardElement, countElement) {
+function configureCardCounter(cardCollection, setCode, cardNumber, cardElement, countElement) {
   countElement.addEventListener('click', (event) => {
     event.stopPropagation();
 
-    if (cardCollection.getCardCount(set, cardNumber) <= 0)
+    if (cardCollection.getCardCount(setCode, cardNumber) <= 0)
       return;
 
-    cardCollection.removeCard(set, cardNumber);
-    setCardCount(cardCollection, set, cardNumber, cardElement, countElement);
+    cardCollection.removeCard(setCode, cardNumber);
+    setCardCount(cardCollection, setCode, cardNumber, cardElement, countElement);
   });
 
   cardElement.addEventListener('click', () => {
 
-    if (cardCollection.getCardCount(set, cardNumber) >= 9)
+    if (cardCollection.getCardCount(setCode, cardNumber) >= 9)
       return;
 
-    cardCollection.addCard(set, cardNumber);
-    setCardCount(cardCollection, set, cardNumber, cardElement, countElement);
+    cardCollection.addCard(setCode, cardNumber);
+    setCardCount(cardCollection, setCode, cardNumber, cardElement, countElement);
   });
 }
 
-function setCardCount(cardCollection, set, cardNumber, cardElement, countElement)
+function setCardCount(cardCollection, setCode, cardNumber, cardElement, countElement)
 {
-  var cardCount = cardCollection.getCardCount(set, cardNumber);
-  console.log('Card count is ' + cardCount);
+  var cardCount = cardCollection.getCardCount(setCode, cardNumber);
   countElement.textContent = cardCount.toString();
 
   if (cardCount <= 0) {
@@ -123,8 +122,6 @@ function setCardCount(cardCollection, set, cardNumber, cardElement, countElement
     cardElement.classList.remove('card-missing');
   }
 }
-
-
 
 class CardCollectionSerializer {
   static serialize(cardCollection) {
