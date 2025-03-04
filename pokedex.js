@@ -47,9 +47,25 @@ function displayCards(sets, cardCollection) {
     setElement.classList.add('set');
     setsElement.appendChild(setElement);
 
+    const headingElement = document.createElement('div');
+    headingElement.classList.add('set-heading');
+    setElement.appendChild(headingElement);
+
     const setHeading = document.createElement('h3');
     setHeading.textContent = set.name;
-    setElement.appendChild(setHeading);
+    headingElement.appendChild(setHeading);
+
+    const setSummary = document.createElement('div');
+    setSummary.classList.add('set-summary');
+    headingElement.appendChild(setSummary);
+
+    const setSummaryOwned = document.createElement('span');
+    setSummaryOwned.textContent = cardCollection.getSetCount(set.code).toString();
+    setSummary.appendChild(setSummaryOwned);
+
+    const setSummaryTotal = document.createElement('span');
+    setSummaryTotal.textContent = `/${set.cards.length}`;
+    setSummary.appendChild(setSummaryTotal);
 
     const setCardsElement = document.createElement('div');
     setCardsElement.classList.add('set-cards');
@@ -79,9 +95,9 @@ function displayCards(sets, cardCollection) {
       setCardsElement.appendChild(cardElement);
 
       if (!cardCollection.isReadOnly)
-        configureCardCounter(cardCollection, set.code, card.number, cardElement, countElement);
+        configureCardCounter(cardCollection, set.code, card.number, cardElement, countElement, setSummaryOwned);
 
-      setCardCount(cardCollection, set.code, card.number, cardElement, countElement);
+      setCardCount(cardCollection, set.code, card.number, cardElement, countElement, setSummaryOwned);
     });
 
     setHeading.addEventListener('click', () => {
@@ -90,7 +106,7 @@ function displayCards(sets, cardCollection) {
   });
 }
 
-function configureCardCounter(cardCollection, setCode, cardNumber, cardElement, countElement) {
+function configureCardCounter(cardCollection, setCode, cardNumber, cardElement, countElement, setSummaryOwned) {
   countElement.addEventListener('click', (event) => {
     event.stopPropagation();
 
@@ -98,7 +114,7 @@ function configureCardCounter(cardCollection, setCode, cardNumber, cardElement, 
       return;
 
     cardCollection.removeCard(setCode, cardNumber);
-    setCardCount(cardCollection, setCode, cardNumber, cardElement, countElement);
+    setCardCount(cardCollection, setCode, cardNumber, cardElement, countElement, setSummaryOwned);
   });
 
   cardElement.addEventListener('click', () => {
@@ -107,11 +123,11 @@ function configureCardCounter(cardCollection, setCode, cardNumber, cardElement, 
       return;
 
     cardCollection.addCard(setCode, cardNumber);
-    setCardCount(cardCollection, setCode, cardNumber, cardElement, countElement);
+    setCardCount(cardCollection, setCode, cardNumber, cardElement, countElement, setSummaryOwned);
   });
 }
 
-function setCardCount(cardCollection, setCode, cardNumber, cardElement, countElement)
+function setCardCount(cardCollection, setCode, cardNumber, cardElement, countElement, setSummaryOwned)
 {
   var cardCount = cardCollection.getCardCount(setCode, cardNumber);
   countElement.textContent = cardCount.toString();
@@ -121,6 +137,8 @@ function setCardCount(cardCollection, setCode, cardNumber, cardElement, countEle
   } else {
     cardElement.classList.remove('card-missing');
   }
+
+  setSummaryOwned.textContent = cardCollection.getSetCount(setCode);
 }
 
 class CardCollectionSerializer {

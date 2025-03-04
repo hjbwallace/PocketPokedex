@@ -51,9 +51,17 @@ body {
 }
 
 .set {
+  .set-heading {
+    display: flex;
+    align-items: center;
+
+    .set-summary {
+      margin-left: 12px;
+    }
+  }
+
   h3 {
     cursor: pointer;
-    display: inline-block;
   }
 }
 
