@@ -1,148 +1,299 @@
-async function loadCards(cardCollection) {
-  try {
-    const response = await fetch(`${rootUrl}/cardDatabase.json`);
-    const data = await response.json();
-    displayCards(data, cardCollection);
-  } catch (error) {
-    console.error('Error loading card data:', error);
+class CollectionSettings {
+  hideEmptySets = false;
+  isReadOnly = false;
+}
+
+class CardCollection {
+  constructor(sets, repository, settings) {
+    this._sets = sets;
+    this._repository = repository;
+    this._settings = settings;
+  }
+
+  static async build(repository, settings) {
+    try {
+      const response = await fetch(`${SiteSettings.rootUrl}/cardDatabase.json`);
+      const databaseSets = await response.json();
+
+      const sets = databaseSets.map((databaseSet) => {
+        const cards = databaseSet.cards.map((card) => {
+          const count = repository.get(databaseSet.code, card.number);
+          return new Card(card.name, card.number, card.rarity, card.type, count);
+        });
+        return new Set(databaseSet.name, databaseSet.code, cards);
+      });
+      return new CardCollection(sets, repository, settings);
+    } catch (error) {
+      console.error('Error building card collection:', error);
+      throw error;
+    }
+  }
+
+  render() {
+    const setsElement = document.querySelector('#sets');
+
+    this._sets.forEach((set) => {
+
+      if (this._settings.hideEmptySets && !set.hasAnyCard()) 
+        return;
+
+      const setElement = set.render(this._settings);
+      setsElement.appendChild(setElement);
+
+      setElement.addEventListener('cardCountUpdated', (event) => {
+        this._repository.set(event.set.code, event.card.number, event.card.count);
+      })
+    });
   }
 }
 
-const rarityMap = {
-  d1: '◆',
-  d2: '◆◆',
-  d3: '◆◆◆',
-  d4: '◆◆◆◆',
-  s1: '★',
-  s2: '★★',
-  s3: '★★★',
-  c1: '♚',
-};
+class Set {
+  cards = [];
+  name = '';
+  code = '';
 
-const typeMap = {
-  0: 'Colorless',
-  1: 'Grass',
-  2: 'Fire',
-  3: 'Water',
-  4: 'Lightning',
-  5: 'Fighting',
-  6: 'Psychic',
-  7: 'Darkness',
-  8: 'Metal',
-  9: 'Dragon',
-  10: 'Supporter',
-  11: 'Item',
-  12: 'Tool'
-}
+  constructor(name, code, cards) {
+    this.name = name;
+    this.code = code;
+    this.cards = cards;
+  }
 
-function displayCards(sets, cardCollection) {
-  const setsElement = document.querySelector('#sets');
+  getSummary() {
+    const regularCards = this.cards.filter((card) => card.rarity.startsWith('d'));
+    const ownedCards = regularCards.filter((card) => card.count > 0);
 
-  sets.forEach((set) => {
+    return {
+      total: regularCards.length,
+      owned: ownedCards.length,
+    };
+  }
 
-    if (!cardCollection.showEmptySets && cardCollection.getSetCount(set.code) <= 0) 
-      return;
+  hasAnyCard() {
+    return this.cards.filter((card) => card.count > 0).length > 0;
+  }
 
+  render(settings) {
     const setElement = document.createElement('div');
     setElement.classList.add('set');
-    setsElement.appendChild(setElement);
 
-    const headingElement = document.createElement('div');
-    headingElement.classList.add('set-heading');
-    setElement.appendChild(headingElement);
+    const setHeadingElement = document.createElement('div');
+    setHeadingElement.classList.add('set-heading');
+    setElement.appendChild(setHeadingElement);
 
-    const setHeading = document.createElement('h3');
-    setHeading.textContent = set.name;
-    headingElement.appendChild(setHeading);
+    const setNameElement = document.createElement('h3');
+    setNameElement.textContent = this.name;
+    setHeadingElement.appendChild(setNameElement);
 
-    const setSummary = document.createElement('div');
-    setSummary.classList.add('set-summary');
-    headingElement.appendChild(setSummary);
-
-    const setSummaryOwned = document.createElement('span');
-    setSummaryOwned.textContent = cardCollection.getSetCount(set.code).toString();
-    setSummary.appendChild(setSummaryOwned);
-
-    const setSummaryTotal = document.createElement('span');
-    setSummaryTotal.textContent = `/${set.cards.length}`;
-    setSummary.appendChild(setSummaryTotal);
+    const setSummaryElement = document.createElement('span');
+    setHeadingElement.appendChild(setSummaryElement);
+    this.updateSummaryText(setSummaryElement);
 
     const setCardsElement = document.createElement('div');
     setCardsElement.classList.add('set-cards');
     setElement.appendChild(setCardsElement);
 
-    set.cards.forEach((card) => {
-      const cardElement = document.createElement('button');
-      cardElement.classList.add('card');
-      cardElement.classList.add(`card-${typeMap[card.type].toLowerCase()}`);
-      cardElement.classList.add(`card-missing`);
-
-      const nameElement = document.createElement('span');
-      nameElement.classList.add('name');
-      nameElement.textContent = card.name;
-
-      const idElement = document.createElement('span');
-      idElement.classList.add('id');
-      idElement.textContent = `#${card.number.toString().padStart(3, '0')} ${rarityMap[card.rarity]}`;
-
-      const countElement = document.createElement('button');
-      countElement.classList.add('count');
-
-      cardElement.appendChild(nameElement);
-      cardElement.appendChild(idElement);
-      cardElement.appendChild(countElement);
-
+    this.cards.forEach((card) => {
+      const cardElement = card.render(settings);
       setCardsElement.appendChild(cardElement);
 
-      if (!cardCollection.isReadOnly)
-        configureCardCounter(cardCollection, set.code, card.number, cardElement, countElement, setSummaryOwned);
+      cardElement.addEventListener('countUpdated', (card) => {
+        this.updateSummaryText(setSummaryElement);
 
-      setCardCount(cardCollection, set.code, card.number, cardElement, countElement, setSummaryOwned);
+        const event = new CustomEvent("cardCountUpdated", {card: card, set: this});
+        setElement.dispatchEvent(event);
+      })
     });
 
-    setHeading.addEventListener('click', () => {
+    setNameElement.addEventListener('click', () => {
       setCardsElement.classList.toggle('hidden');
     });
-  });
-}
 
-function configureCardCounter(cardCollection, setCode, cardNumber, cardElement, countElement, setSummaryOwned) {
-  countElement.addEventListener('click', (event) => {
-    event.stopPropagation();
-
-    if (cardCollection.getCardCount(setCode, cardNumber) <= 0)
-      return;
-
-    cardCollection.removeCard(setCode, cardNumber);
-    setCardCount(cardCollection, setCode, cardNumber, cardElement, countElement, setSummaryOwned);
-  });
-
-  cardElement.addEventListener('click', () => {
-
-    if (cardCollection.getCardCount(setCode, cardNumber) >= 9)
-      return;
-
-    cardCollection.addCard(setCode, cardNumber);
-    setCardCount(cardCollection, setCode, cardNumber, cardElement, countElement, setSummaryOwned);
-  });
-}
-
-function setCardCount(cardCollection, setCode, cardNumber, cardElement, countElement, setSummaryOwned)
-{
-  var cardCount = cardCollection.getCardCount(setCode, cardNumber);
-  countElement.textContent = cardCount.toString();
-
-  if (cardCount <= 0) {
-    cardElement.classList.add('card-missing');
-  } else {
-    cardElement.classList.remove('card-missing');
+    return setElement;
   }
 
-  setSummaryOwned.textContent = cardCollection.getSetCount(setCode);
+  updateSummaryText(setSummaryElement) {
+    const setSummary = this.getSummary();
+    setSummaryElement.textContent = `${setSummary.owned}/${setSummary.total}`;
+  }
 }
 
-class CardCollectionSerializer {
-  static serialize(cardCollection) {
+class Card {
+  name = '';
+  number = 0;
+  rarity = '';
+  type = '';
+  count = 0;
+
+  constructor(name, number, rarity, type, count) {
+    this.name = name;
+    this.number = number;
+    this.rarity = rarity;
+    this.type = type;
+    this.count = count;
+  }
+
+  render(settings) {
+    const cardElement = document.createElement('button');
+    cardElement.classList.add('card');
+    cardElement.classList.add(`card-${CardMappings.type[this.type].toLowerCase()}`);
+    cardElement.classList.add(`card-missing`);
+
+    const nameElement = document.createElement('span');
+    nameElement.classList.add('name');
+    nameElement.textContent = this.name;
+
+    const idElement = document.createElement('span');
+    idElement.classList.add('id');
+    idElement.textContent = `#${this.number.toString().padStart(3, '0')} ${CardMappings.rarity[this.rarity]}`;
+
+    const countElement = document.createElement('button');
+    countElement.classList.add('count');
+    this.setCount(this.count, cardElement, countElement);
+
+    cardElement.appendChild(nameElement);
+    cardElement.appendChild(idElement);
+    cardElement.appendChild(countElement);
+
+    if (!settings.isReadOnly)
+      this.configureCardCounter(cardElement, countElement);
+
+    return cardElement;
+  }
+
+  configureCardCounter(cardElement, countElement) {
+    countElement.addEventListener('click', (event) => {
+      event.stopPropagation();
+
+      if (this.count <= 0)
+        return;
+
+      this.setCount(this.count - 1, cardElement, countElement);
+    });
+  
+    cardElement.addEventListener('click', () => {
+  
+      if (this.count >= 9)
+        return;
+  
+      this.setCount(this.count + 1, cardElement, countElement);
+    });
+  }
+  
+  setCount(newCount, cardElement, countElement) {
+    this.count = newCount;
+
+    countElement.textContent = newCount.toString();
+
+    if (newCount <= 0) {
+      cardElement.classList.add('card-missing');
+    } else {
+      cardElement.classList.remove('card-missing');
+    }
+
+    const event = new CustomEvent("countUpdated", this);
+    cardElement.dispatchEvent(event);
+  }
+}
+
+class CardMappings {
+  static rarity = {
+    d1: '◆',
+    d2: '◆◆',
+    d3: '◆◆◆',
+    d4: '◆◆◆◆',
+    s1: '★',
+    s2: '★★',
+    s3: '★★★',
+    c1: '♚',
+  };
+  
+  static type = {
+    0: 'Colorless',
+    1: 'Grass',
+    2: 'Fire',
+    3: 'Water',
+    4: 'Lightning',
+    5: 'Fighting',
+    6: 'Psychic',
+    7: 'Darkness',
+    8: 'Metal',
+    9: 'Dragon',
+    10: 'Supporter',
+    11: 'Item',
+    12: 'Tool'
+  }
+}
+
+class CardCountRepository {
+  _cards = {};
+
+  constructor(cards) {
+    if (cards)
+      this._cards = cards;
+  }
+
+  get(setCode, cardNumber) {
+    return this._cards[setCode] && this._cards[setCode][cardNumber] 
+      ? this._cards[setCode][cardNumber] 
+      : 0;
+  }
+
+  set(setCode, cardNumber, cardCount) {
+    if (!this._cards[setCode]) {
+      this._cards[setCode] = {};
+    }
+
+    if (this._cards[setCode][cardNumber]) {
+      this._cards[setCode][cardNumber] = cardCount;
+      if (this._cards[setCode][cardNumber] <= 0) {
+        delete this._cards[setCode][cardNumber];
+      }
+    } else if (cardCount > 0) {
+      this._cards[setCode][cardNumber] = cardCount;
+    }
+  }
+
+  serialize() {
+    return CardCountSerializer.serializeRoute(this._cards);
+  }
+}
+
+class LocalCardCountRepository extends CardCountRepository {
+  static #storageKey = 'pocketPokedex';
+
+  constructor() {
+    var cards = LocalCardCountRepository.#loadCardsFromStorage();
+    super(cards);
+  }
+
+  set(set, cardNumber, cardCount) {
+    super.set(set, cardNumber, cardCount);
+    this.#saveCardsToStorage();
+  }
+
+  #saveCardsToStorage() {
+    localStorage.setItem(LocalCardCountRepository.#storageKey, JSON.stringify(this._cards));
+  }
+
+  static #loadCardsFromStorage() {
+    const storedData = localStorage.getItem(LocalCardCountRepository.#storageKey);
+    if (storedData)
+      return JSON.parse(storedData);
+
+    return null;
+  }
+}
+
+class RouteCardCountRepository extends CardCountRepository {
+  constructor() {
+    var serialized = window.location.search.slice(1);
+    var cards = CardCountSerializer.deserializeRoute(serialized);
+    super(cards);
+  }
+}
+
+class CardCountSerializer {
+  static serializeRoute(cardCollection) {
     const serialized = [];
 
     for (const set in cardCollection) {
@@ -164,9 +315,9 @@ class CardCollectionSerializer {
     return serialized.join('&');
   }
 
-  static deserialize(serialized) {
+  static deserializeRoute(route) {
     const cardCollection = {};
-    const sets = serialized.split('&');
+    const sets = route.split('&');
 
     sets.forEach(set => {
       const [setName, cardCounts] = set.split('-');
@@ -191,105 +342,26 @@ class CardCollectionSerializer {
   }
 }
 
-class CardCollection {
-  _cards = {};
+class SiteSettings {
+  static isLocal = false;
+  static rootUrl = '';
 
-  isReadOnly;
-  showEmptySets;
-
-  constructor(cards, isReadOnly, showEmptySets) {
-    if (cards)
-      this._cards = cards;
-
-    this.isReadOnly = isReadOnly;
-    this.showEmptySets = showEmptySets;
-  }
-
-  getCardCount(set, number) {
-    return this._cards[set] && this._cards[set][number] 
-      ? this._cards[set][number] 
-      : 0;
-  }
-
-  getSetCount(set) {
-    return this._cards[set]
-      ? Object.keys(this._cards[set]).length
-      : 0;
-  }
-
-  serialize() {
-    return CardCollectionSerializer.serialize(this._cards);
-  }
-
-  _updateCardCount(set, number, delta) {
-    if (this.isReadOnly)
-      return;
-    
-    if (!this._cards[set]) {
-      this._cards[set] = {};
-    }
-
-    if (this._cards[set][number]) {
-      this._cards[set][number] += delta;
-      if (this._cards[set][number] <= 0) {
-        delete this._cards[set][number];
-      }
-    } else if (delta > 0) {
-      this._cards[set][number] = delta;
-    }
+  static init() {
+    this.isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    this.rootUrl = this.isLocal 
+      ? `${window.location.protocol}//${window.location.host}`
+      : `${window.location.protocol}//${window.location.host}/PocketPokedex`;
   }
 }
 
-class LocalCardCollection extends CardCollection {
-  static #storageKey = 'pocketPokedex';
-
-  constructor() {
-    var cards = LocalCardCollection.loadCardsFromStorage();
-    super(cards, false, true);
-  }
-
-  static loadCardsFromStorage() {
-    const storedData = localStorage.getItem(LocalCardCollection.#storageKey);
-    if (storedData)
-      return JSON.parse(storedData);
-
-    return null;
-  }
-
-  addCard(set, number) { 
-    this._updateCardCount(set, number, 1); 
-    this.#saveCardsToStorage();
-  }
-
-  removeCard(set, number) { 
-    this._updateCardCount(set, number, -1); 
-    this.#saveCardsToStorage();
-  }
-
-  #saveCardsToStorage() {
-    localStorage.setItem(LocalCardCollection.#storageKey, JSON.stringify(this._cards));
-  }
-}
-
-class ViewCardCollection extends CardCollection {
-  isReadOnly = true;
-  showEmptySets = false;
-
-  constructor() {
-    var serialized = window.location.search.slice(1);
-    var cards = CardCollectionSerializer.deserialize(serialized);
-    super(cards, true, false);
-  }
-}
-
-function configureShareButton() {
+function configureShareButton(cardCountRepository) {
   const generateLinkButton = document.getElementById('generate-link');
   const copyLinkButton = document.getElementById('copy-link');
   const linkValue = document.getElementById('link-value');
 
   generateLinkButton.addEventListener('click', () => {
-    const collectionSnapshot = localCardCollection.serialize();
-    const url = `${rootUrl}/view?${collectionSnapshot}`;
+    const collectionSnapshot = cardCountRepository.serialize();
+    const url = `${SiteSettings.rootUrl}/view?${collectionSnapshot}`;
     linkValue.value = url;
   });
 
@@ -299,9 +371,4 @@ function configureShareButton() {
   });
 }
 
-const localCardCollection = new LocalCardCollection();
-const viewCardCollection = new ViewCardCollection();
-
-const rootUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? `${window.location.protocol}//${window.location.host}`
-  : `${window.location.protocol}//${window.location.host}/PocketPokedex`;
+SiteSettings.init();

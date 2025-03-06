@@ -55,7 +55,7 @@ body {
     display: flex;
     align-items: center;
 
-    .set-summary {
+    span {
       margin-left: 12px;
     }
   }

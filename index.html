@@ -25,9 +25,12 @@
     </main>
   </body>
   <script>
-    window.onload = () => { 
-      loadCards(localCardCollection); 
-      configureShareButton();
+    window.onload = async () => {
+      const repository = new LocalCardCountRepository();
+      const settings = new CollectionSettings();
+      const collection = await CardCollection.build(repository, settings);
+      collection.render();
+      configureShareButton(repository);
     };
   </script>
 </html>

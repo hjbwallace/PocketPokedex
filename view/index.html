@@ -22,9 +22,14 @@
     </main>
   </body>
   <script>
-    window.onload = () => { 
-      loadCards(viewCardCollection);
-      document.getElementById('home-link').href = rootUrl;
+    window.onload = async () => {
+      const repository = new RouteCardCountRepository();
+      const settings = new CollectionSettings();
+      settings.isReadOnly = true;
+      const collection = await CardCollection.build(repository, settings);
+      collection.render();
+
+      document.getElementById('home-link').href = SiteSettings.rootUrl;
     };
   </script>
 </html>
