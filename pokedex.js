@@ -41,7 +41,7 @@ class CardCollection {
       setsElement.appendChild(setElement);
 
       setElement.addEventListener('cardCountUpdated', (event) => {
-        this._repository.set(event.set.code, event.card.number, event.card.count);
+        this._repository.set(event.detail.set.code, event.detail.card.number, event.detail.card.count);
       })
     });
   }
@@ -96,11 +96,11 @@ class Set {
       const cardElement = card.render(settings);
       setCardsElement.appendChild(cardElement);
 
-      cardElement.addEventListener('countUpdated', (card) => {
+      cardElement.addEventListener('countUpdated', (cardEvent) => {
         this.updateSummaryText(setSummaryElement);
 
-        const event = new CustomEvent("cardCountUpdated", {card: card, set: this});
-        setElement.dispatchEvent(event);
+        const setEvent = new CustomEvent("cardCountUpdated", { detail: {card: cardEvent.detail, set: this} });
+        setElement.dispatchEvent(setEvent);
       })
     });
 
@@ -190,7 +190,7 @@ class Card {
       cardElement.classList.remove('card-missing');
     }
 
-    const event = new CustomEvent("countUpdated", this);
+    const event = new CustomEvent("countUpdated", { detail: this });
     cardElement.dispatchEvent(event);
   }
 }
