@@ -4,25 +4,28 @@ class CollectionSettings {
 }
 
 class CardCollection {
-  constructor(sets, repository, settings) {
+  constructor(sets, repository, settings, filter) {
     this._sets = sets;
     this._repository = repository;
     this._settings = settings;
+    this._filter = filter;
   }
 
-  static async build(repository, settings) {
+  static async build(repository, settings, filter) {
     try {
       const response = await fetch(`${SiteSettings.rootUrl}/cardDatabase.json`);
       const databaseSets = await response.json();
 
       const sets = databaseSets.map((databaseSet) => {
-        const cards = databaseSet.cards.map((card) => {
-          const count = repository.get(databaseSet.code, card.number);
-          return new Card(card.name, card.number, card.rarity, card.type, count);
+        const cards = databaseSet.cards.map((databaseCard) => {
+          const count = repository.get(databaseSet.code, databaseCard.number);
+          const card = new Card(databaseCard.name, databaseCard.number, databaseCard.rarity, databaseCard.type, count);
+          card.setVisibility(filter);
+          return card;
         });
         return new Set(databaseSet.name, databaseSet.code, cards);
       });
-      return new CardCollection(sets, repository, settings);
+      return new CardCollection(sets, repository, settings, filter);
     } catch (error) {
       console.error('Error building card collection:', error);
       throw error;
@@ -94,6 +97,10 @@ class Set {
 
     this.cards.forEach((card) => {
       const cardElement = card.render(settings);
+
+      if (!cardElement)
+        return;
+
       setCardsElement.appendChild(cardElement);
 
       cardElement.addEventListener('countUpdated', (cardEvent) => {
@@ -130,9 +137,17 @@ class Card {
     this.rarity = rarity;
     this.type = type;
     this.count = count;
+    this.isVisible = false;
+  }
+
+  setVisibility(filter) {
+    this.isVisible = filter.appliesTo(this);
   }
 
   render(settings) {
+    if (!this.isVisible)
+      return null;
+
     const cardElement = document.createElement('button');
     cardElement.classList.add('card');
     cardElement.classList.add(`card-${CardMappings.type[this.type].toLowerCase()}`);
@@ -369,6 +384,60 @@ function configureShareButton(cardCountRepository) {
     const linkValueString = linkValue.value.toString();
     navigator.clipboard.writeText(linkValueString);
   });
+}
+
+class CardFilter {
+  static fromRoute(route) {
+    const filter = new CardFilter();
+
+    const params = new URLSearchParams(route);
+    filter._query = params.get('q') || '';
+    filter._status = params.get('status') || 'all';
+    
+    return filter;
+  }
+
+  appliesTo(card) {
+    return card
+      && this.checkQuery(card)
+      && this.checkStatus(card);
+  }
+
+  checkQuery(card) {
+    return !this._query || card.name.toLowerCase().includes(this._query.toLowerCase());
+  }
+
+  checkStatus(card) {
+    switch (this._status) {
+      case 'owned':
+        return card.count >= 1;
+      case 'duplicates':
+        return card.count >= 2;
+      case 'missing':
+        return card.count === 0;
+      default:
+        return true;
+    }
+  }
+
+  render() {
+    this.setInputValues();
+
+    document.getElementById('filter-reset').addEventListener('click', () => {
+      this.reset();
+      this.setInputValues();
+    });
+  }
+
+  setInputValues() {
+    document.getElementById('filter-query').value = this._query ?? '';
+    document.getElementById('filter-status').value = this._status ?? 'all';
+  }
+
+  reset() {
+    this._query = '';
+    this._status = 'all';
+  }
 }
 
 SiteSettings.init();
