@@ -19,11 +19,12 @@ class CardCollection {
       const sets = databaseSets.map((databaseSet) => {
         const cards = databaseSet.cards.map((databaseCard) => {
           const count = repository.get(databaseSet.code, databaseCard.number);
-          const card = new Card(databaseCard.name, databaseCard.number, databaseCard.rarity, databaseCard.type, count);
+          const boosters = databaseCard.boosters.split("").map(x => databaseSet.boosters[Number(x)]);
+          const card = new Card(databaseCard.name, databaseCard.number, databaseCard.rarity, databaseCard.type, count, boosters);
           card.setVisibility(filter);
           return card;
         });
-        return new Set(databaseSet.name, databaseSet.code, cards);
+        return new Set(databaseSet.name, databaseSet.code, Date.parse(databaseSet.releaseDate), cards);
       });
       return new CardCollection(sets, repository, settings, filter);
     } catch (error) {
@@ -51,14 +52,18 @@ class CardCollection {
 }
 
 class Set {
-  cards = [];
   name = '';
   code = '';
+  releaseDate = new Date();
+  cards = [];
+  boosters = [];
 
-  constructor(name, code, cards) {
+  constructor(name, code, releaseDate, cards, boosters) {
     this.name = name;
     this.code = code;
+    this.releaseDate = releaseDate;
     this.cards = cards;
+    this.boosters = boosters;
   }
 
   getSummary() {
@@ -131,13 +136,15 @@ class Card {
   rarity = '';
   type = '';
   count = 0;
+  boosters = [];
 
-  constructor(name, number, rarity, type, count) {
+  constructor(name, number, rarity, type, count, boosters) {
     this.name = name;
     this.number = number;
     this.rarity = rarity;
     this.type = type;
     this.count = count;
+    this.boosters = boosters;
     this.isVisible = false;
   }
 
