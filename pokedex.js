@@ -78,6 +78,7 @@ class Set {
   render(settings) {
     const setElement = document.createElement('div');
     setElement.classList.add('set');
+    setElement.id = `set-${this.code}`;
 
     const setHeadingElement = document.createElement('div');
     setHeadingElement.classList.add('set-heading');
@@ -437,6 +438,22 @@ class CardFilter {
   reset() {
     this._query = '';
     this._status = 'all';
+  }
+}
+
+class NavBar {
+  static render() {
+    // TODO: Add the collection navs dynamically
+    var navbarElement = document.getElementById("navbar");
+    var navbarToggleElement = document.getElementById("navbar-toggle");
+
+    navbarToggleElement.addEventListener('click', () => {
+      if (navbarElement.className === "navbar") {
+        navbarElement.className += " responsive";
+      } else {
+        navbarElement.className = "navbar";
+      }
+    });
   }
 }
 

@@ -1,0 +1,91 @@
+.navbar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "logo toggle"
+    "content content";
+  background-color: #3B4CCA;
+  align-items: center;
+
+  .logo {
+    grid-area: logo;
+    font-weight: bold;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+  }
+  
+  .toggle {
+    grid-area: toggle;
+
+    a {
+      font-size:15px;
+    }
+  }
+  
+  .content {
+    display: none;
+    grid-area: content;
+  }
+
+  &.responsive .content {
+    display: block;
+  }
+
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+  }
+
+  a, span {
+    display: block;
+    padding: 14px;
+    text-decoration: none;
+    color: white;
+
+    &:hover:not(.logo) {
+      background-color: #555;
+    }
+  }
+
+  .dropdown-content {
+    background-color: lightgray;
+
+    a {
+      color: black;
+
+      &:hover {
+        background-color: #f2f2f2;
+      }
+    }
+  }
+
+  @media (min-width: 600px) {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto;
+    grid-template-areas: "logo content";
+
+    ul {
+      display: flex;
+    }
+
+    .toggle {
+      display: none;
+    }
+
+    .content {
+      display: flex;
+    }
+
+    .dropdown-content {
+      display: none;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+      position: absolute;
+    }
+  }
+}

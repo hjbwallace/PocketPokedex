@@ -3,15 +3,37 @@
   <head>
     <script src="./pokedex.js"></script>
     <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="stylesheet" type="text/css" href="css/navbar.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="./favicon.ico" rel="icon" type="image/x-icon">
     <title>Pocket Pokedex</title>
   </head>
   <body>
+
+    <nav id="navbar" class="navbar">
+      <span class="logo" href="#">Pocket Pokedex</span>
+      <div class="toggle">
+        <a id="navbar-toggle" href="javascript:void(0);">&#9776;</a>
+      </div>
+      <div class="content">
+        <ul>
+          <li class="dropdown">
+            <a href="#collection">Collection</a>
+            <ul class="dropdown-content">
+              <li><a href="#set-A1">Genetic Apex</a></li>
+              <li><a href="#set-A1a">Mythical Island</a></li>
+              <li><a href="#set-A2">Space-Time Smackdown</a></li>
+            </ul>
+          </li>
+          <li><a href="#stats">Statistics</a></li>
+        </ul>
+      </div>
+    </nav>
+
     <main>
 
       <h1>Pocket Pokedex</h1>
-      <h2>My Collection</h2>
+      <h2 id="collection">My Collection</h2>
 
       <form id="filter" method="GET" action=".">
         <input id="filter-query" type="text" name="q" placeholder="Search cards...">
@@ -34,6 +56,10 @@
       <section id="sets">
       </section>
 
+      <section id="stats">
+        <h2>Statistics</h2>
+      </section>
+
     </main>
   </body>
   <script>
@@ -46,6 +72,8 @@
       const collection = await CardCollection.build(repository, settings, filter);
       collection.render();
       configureShareButton(repository);
+
+      NavBar.render();
     };
   </script>
 </html>
