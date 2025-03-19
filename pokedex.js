@@ -49,9 +49,14 @@ class CardCollection {
       })
     });
   }
+
+  getSetNavigationDetails() {
+    return this._sets.map((set) => ({ id: set.id, name: set.name }));
+  }
 }
 
 class Set {
+  id = '';
   name = '';
   code = '';
   releaseDate = new Date();
@@ -59,6 +64,7 @@ class Set {
   boosters = [];
 
   constructor(name, code, releaseDate, cards, boosters) {
+    this.id = `set-${code}`;
     this.name = name;
     this.code = code;
     this.releaseDate = releaseDate;
@@ -449,8 +455,23 @@ class CardFilter {
 }
 
 class NavBar {
-  static render() {
-    // TODO: Add the collection navs dynamically
+  static render(cardCollection) {
+    this.#renderSetNavigation(cardCollection);
+    this.#configureToggle();
+  }
+
+  static #renderSetNavigation(cardCollection) {
+    var setDetails = cardCollection.getSetNavigationDetails();
+    var collectionSetsElement = document.getElementById("collection-sets");
+
+    setDetails.forEach(setDetails => {
+      const listItem = document.createElement("li");
+      listItem.innerHTML = `<a href="#${setDetails.id}">${setDetails.name}</a>`;
+      collectionSetsElement.appendChild(listItem);
+    });
+  }
+
+  static #configureToggle() {
     var navbarElement = document.getElementById("navbar");
     var navbarToggleElement = document.getElementById("navbar-toggle");
 

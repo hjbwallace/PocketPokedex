@@ -19,10 +19,7 @@
         <ul>
           <li class="dropdown">
             <a href="#collection">Collection</a>
-            <ul class="dropdown-content">
-              <li><a href="#set-A1">Genetic Apex</a></li>
-              <li><a href="#set-A1a">Mythical Island</a></li>
-              <li><a href="#set-A2">Space-Time Smackdown</a></li>
+            <ul id="collection-sets" class="dropdown-content">
             </ul>
           </li>
           <li><a href="#stats">Statistics</a></li>
@@ -73,7 +70,7 @@
       collection.render();
       configureShareButton(repository);
 
-      NavBar.render();
+      NavBar.render(collection);
     };
   </script>
 </html>
