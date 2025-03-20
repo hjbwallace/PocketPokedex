@@ -453,7 +453,8 @@ class CardFilter {
 
     const params = new URLSearchParams(route);
     filter._query = params.get('q') || '';
-    filter._status = params.get('status') || 'all';
+    filter._status = params.get('status') || '';
+    filter._rarity = params.get('rarity') || '';
     
     return filter;
   }
@@ -461,7 +462,8 @@ class CardFilter {
   appliesTo(card) {
     return card
       && this.checkQuery(card)
-      && this.checkStatus(card);
+      && this.checkStatus(card)
+      && this.checkRarity(card);
   }
 
   checkQuery(card) {
@@ -481,6 +483,12 @@ class CardFilter {
     }
   }
 
+  checkRarity(card) {
+    return !this._rarity
+      || (card.rarity.startsWith('d') && this._rarity === 'regular')
+      || (!card.rarity.startsWith('d') && this._rarity === 'secret');
+  }
+
   render() {
     this.setInputValues();
 
@@ -492,12 +500,14 @@ class CardFilter {
 
   setInputValues() {
     document.getElementById('filter-query').value = this._query ?? '';
-    document.getElementById('filter-status').value = this._status ?? 'all';
+    document.getElementById('filter-status').value = this._status ?? '';
+    document.getElementById('filter-rarity').value = this._rarity ?? '';
   }
 
   reset() {
     this._query = '';
-    this._status = 'all';
+    this._status = '';
+    this._rarity = '';
   }
 }
 

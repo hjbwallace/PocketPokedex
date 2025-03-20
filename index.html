@@ -35,10 +35,15 @@
       <form id="filter" method="GET" action=".">
         <input id="filter-query" type="text" name="q" placeholder="Search cards...">
         <select id="filter-status" name="status">
-          <option value="all">All</option>
+          <option value="">(Status)</option>
           <option value="owned">Owned</option>
           <option value="duplicates">Duplicates</option>
           <option value="missing">Missing</option>
+        </select>
+        <select id="filter-rarity" name="rarity">
+          <option value="">(Rarity)</option>
+          <option value="regular">Regular</option>
+          <option value="secret">Secret</option>
         </select>
         <button id="filter-submit" type="submit">Filter</button>
         <button id="filter-reset" type="button">Reset</button>
