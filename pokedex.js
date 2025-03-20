@@ -24,7 +24,7 @@ class CardCollection {
           card.setVisibility(filter);
           return card;
         });
-        return new Set(databaseSet.name, databaseSet.code, Date.parse(databaseSet.releaseDate), cards);
+        return new Set(databaseSet.name, databaseSet.code, Date.parse(databaseSet.releaseDate), cards, databaseSet.boosters);
       });
       return new CardCollection(sets, repository, settings, filter);
     } catch (error) {
@@ -82,6 +82,18 @@ class Set {
     };
   }
 
+  getBoosterSummary() {
+    const regularCards = this.cards.filter((card) => card.rarity.startsWith('d'));
+
+    return this.boosters.map((booster) => {
+      return {
+        name: booster,
+        total: regularCards.filter((card) => card.boosters.includes(booster)).length,
+        owned: regularCards.filter((card) => card.boosters.includes(booster) && card.count > 0).length
+      }
+    })
+  }
+
   hasAnyCard() {
     return this.cards.filter((card) => card.count > 0).length > 0;
   }
@@ -101,7 +113,23 @@ class Set {
 
     const setSummaryElement = document.createElement('span');
     setHeadingElement.appendChild(setSummaryElement);
-    this.updateSummaryText(setSummaryElement);
+    this.updateSetSummaryText(setSummaryElement);
+
+    const boosterSummary = this.getBoosterSummary();
+
+    if (boosterSummary.length > 1) {
+      const boosterListElement = document.createElement('ul');
+      boosterListElement.classList.add('set-boosters');
+
+      boosterSummary.forEach((booster) => {
+        const boosterElement = document.createElement('li');
+        boosterElement.id = `booster-${booster.name}`;
+        this.updateBoosterSummaryHtml(boosterElement, booster);
+        boosterListElement.appendChild(boosterElement);
+      });
+
+      setElement.appendChild(boosterListElement);
+    }
 
     const setCardsElement = document.createElement('div');
     setCardsElement.classList.add('set-cards');
@@ -116,7 +144,8 @@ class Set {
       setCardsElement.appendChild(cardElement);
 
       cardElement.addEventListener('countUpdated', (cardEvent) => {
-        this.updateSummaryText(setSummaryElement);
+        this.updateSetSummaryText(setSummaryElement);
+        this.updateBoosterSummaryText();
 
         const setEvent = new CustomEvent("cardCountUpdated", { detail: {card: cardEvent.detail, set: this} });
         setElement.dispatchEvent(setEvent);
@@ -130,9 +159,24 @@ class Set {
     return setElement;
   }
 
-  updateSummaryText(setSummaryElement) {
+  updateSetSummaryText(setSummaryElement) {
     const setSummary = this.getSummary();
     setSummaryElement.textContent = `${setSummary.owned}/${setSummary.total}`;
+  }
+
+  updateBoosterSummaryText() {
+    const boosterSummary = this.getBoosterSummary();
+    
+    if (boosterSummary.length > 1) {
+      boosterSummary.forEach((booster) => {
+        const element = document.getElementById(`booster-${booster.name}`);
+        this.updateBoosterSummaryHtml(element, booster);
+      })
+    }
+  }
+
+  updateBoosterSummaryHtml(boosterElement, booster) {
+    boosterElement.innerHTML = `<strong>${booster.name}</strong> ${booster.owned}/${booster.total}`;
   }
 }
 

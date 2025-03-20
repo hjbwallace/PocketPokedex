@@ -60,6 +60,10 @@ body {
     }
   }
 
+  .set-boosters {
+    margin-top: 0px;
+  }
+
   h3 {
     cursor: pointer;
   }
