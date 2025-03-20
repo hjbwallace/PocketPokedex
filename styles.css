@@ -88,6 +88,10 @@ body {
       filter: brightness(1.05);
     }
 
+    &.secret {
+      box-shadow: 0 4px 8px 0 lightgoldenrodyellow;
+    }
+
     .name {
       font-weight: bold;
     }

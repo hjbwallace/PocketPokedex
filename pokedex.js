@@ -211,6 +211,9 @@ class Card {
     cardElement.classList.add(`card-${CardMappings.type[this.type].toLowerCase()}`);
     cardElement.classList.add(`card-missing`);
 
+    if (!this.rarity.startsWith('d'))
+      cardElement.classList.add('secret');
+
     const nameElement = document.createElement('span');
     nameElement.classList.add('name');
     nameElement.textContent = this.name;
