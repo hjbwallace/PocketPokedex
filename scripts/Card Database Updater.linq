@@ -15,6 +15,7 @@ var sets = new[]
 	SetDownloader.Download("Mythical Island", "A1a", new DateTime(2024, 12, 17)),
 	SetDownloader.Download("Space-Time Smackdown", "A2", new DateTime(2025, 01, 30)),
 	SetDownloader.Download("Triumphant Light", "A2a", new DateTime(2025, 02, 28)),
+	SetDownloader.Download("Shining Revelry", "A2b", new DateTime(2025, 03, 27)),
 };
 
 CardDatabase.Update(sets);
