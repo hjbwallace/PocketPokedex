@@ -35,15 +35,18 @@
       <form id="filter" method="GET" action=".">
         <input id="filter-query" type="text" name="q" placeholder="Search cards...">
         <select id="filter-status" name="status">
-          <option value="">(Status)</option>
+          <option value="">(Any Status)</option>
           <option value="owned">Owned</option>
           <option value="duplicates">Duplicates</option>
           <option value="missing">Missing</option>
         </select>
         <select id="filter-rarity" name="rarity">
-          <option value="">(Rarity)</option>
+          <option value="">(Any Rarity)</option>
           <option value="regular">Regular</option>
           <option value="secret">Secret</option>
+        </select>
+        <select id="filter-booster" name="booster">
+          <option value="">(Any Booster)</option>
         </select>
         <button id="filter-submit" type="submit">Filter</button>
         <button id="filter-reset" type="button">Reset</button>
@@ -69,12 +72,12 @@
       const repository = new LocalCardCountRepository();
       const settings = new CollectionSettings();
       const filter = CardFilter.fromRoute(window.location.search);
-      filter.render();
-
       const collection = await CardCollection.build(repository, settings, filter);
-      collection.render();
+
       configureShareButton(repository);
 
+      collection.render();
+      filter.render(collection);
       NavBar.render(collection);
     };
   </script>

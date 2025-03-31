@@ -41,7 +41,11 @@ class CardCollection {
       if (this._settings.hideEmptySets && !set.hasAnyCard()) 
         return;
 
+      if (set.cards.filter((card) => card.isVisible).length === 0)
+        return;
+
       const setElement = set.render(this._settings);
+
       setsElement.appendChild(setElement);
 
       setElement.addEventListener('cardCountUpdated', (event) => {
@@ -52,6 +56,10 @@ class CardCollection {
 
   getSetNavigationDetails() {
     return this._sets.map((set) => ({ id: set.id, name: set.name }));
+  }
+
+  getBoosterDetails() {
+    return this._sets.flatMap((set) => set.boosters.map((booster) => ({ name: booster, set: set.name })));
   }
 }
 
@@ -455,6 +463,9 @@ class CardFilter {
     filter._query = params.get('q') || '';
     filter._status = params.get('status') || '';
     filter._rarity = params.get('rarity') || '';
+    filter._booster = params.get('booster') || '';
+
+    console.log(JSON.stringify(filter));
     
     return filter;
   }
@@ -463,7 +474,8 @@ class CardFilter {
     return card
       && this.checkQuery(card)
       && this.checkStatus(card)
-      && this.checkRarity(card);
+      && this.checkRarity(card)
+      && this.checkBooster(card);
   }
 
   checkQuery(card) {
@@ -489,25 +501,41 @@ class CardFilter {
       || (!card.rarity.startsWith('d') && this._rarity === 'secret');
   }
 
-  render() {
-    this.setInputValues();
+  checkBooster(card) {
+    return !this._booster || card.boosters.includes(this._booster);
+  }
+
+  render(cardCollection) {
+    var boosterInputElement = document.getElementById('filter-booster');
+    const boosterDetails = cardCollection.getBoosterDetails();
+
+    boosterDetails.forEach((booster) => {
+      const option = document.createElement('option');
+      option.value = booster.name;
+      option.text = `${booster.name} (${booster.set})`;
+      boosterInputElement.add(option);
+    })
 
     document.getElementById('filter-reset').addEventListener('click', () => {
       this.reset();
       this.setInputValues();
     });
+
+    this.setInputValues();
   }
 
   setInputValues() {
-    document.getElementById('filter-query').value = this._query ?? '';
-    document.getElementById('filter-status').value = this._status ?? '';
-    document.getElementById('filter-rarity').value = this._rarity ?? '';
+    document.getElementById('filter-query').value = this._query;
+    document.getElementById('filter-status').value = this._status;
+    document.getElementById('filter-rarity').value = this._rarity;
+    document.getElementById('filter-booster').value = this._booster;
   }
 
   reset() {
     this._query = '';
     this._status = '';
     this._rarity = '';
+    this._booster = '';
   }
 }
 
