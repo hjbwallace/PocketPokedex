@@ -38,12 +38,21 @@
   --body: #E7E7E7;
   --inactive: #E1E1E1;
   --inactive-dark: #929292;
+  --highlight: #BEBEBEBE;
 }
 
 body {
   background-color: var(--body);
   font-family: Verdana, sans-serif;
   margin: 0;
+}
+
+main {
+  padding: 16px;
+
+  @media screen and (min-width: 768px) {
+    max-width: 80%;
+  }
 }
 
 #sets {
@@ -58,10 +67,6 @@ body {
     span {
       margin-left: 12px;
     }
-  }
-
-  .set-boosters {
-    margin-top: 0px;
   }
 
   h3 {
@@ -168,12 +173,36 @@ body {
       border-style: solid;
     }
   }
-
-  @media screen and (min-width: 768px) {
-    max-width: 80%;
-  }
 }
 
 .hidden {
   display: none;
+}
+
+.set-stats-table {
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  font-size: small;
+  
+  table {
+    border-collapse: collapse;
+  }
+
+  th, td {
+    padding: 8px;
+    text-align: left;
+  }
+
+  thead th {
+    background-color: var(--highlight);
+    border-bottom: 1px solid #000;
+  }
+
+  tbody tr:last-child:not(:first-child) {
+    border-bottom: 1px solid #000;
+  }
+
+  tfoot tr {
+    font-weight: bold;;
+  }
 }

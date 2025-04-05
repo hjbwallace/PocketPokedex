@@ -102,6 +102,44 @@ class Set {
     })
   }
 
+  getSetSummary() {
+    const setBoosters = this.boosters.length > 1
+      ? [...this.boosters, "Total"]
+      : [...this.boosters];
+
+    return setBoosters.map((booster) => {
+      const boosterCards = this.cards.filter((card) => card.boosters.includes(booster) || booster === "Total");
+      return this.getCardCollectionSummary(booster, boosterCards);
+    })
+  }
+
+  getCardCollectionSummary(name, cards) {
+    return {
+      name: name,
+      regular: new Quantity(
+        cards.filter((card) => card.rarity.startsWith('d') && card.count > 0).length,
+        cards.filter((card) => card.rarity.startsWith('d')).length),
+      special: new Quantity(
+        cards.filter((card) => !card.rarity.startsWith('d') && card.count > 0).length,
+        cards.filter((card) => !card.rarity.startsWith('d')).length),
+      total: new Quantity(
+        cards.filter((card) => card.count > 0).length,
+        cards.length),
+      d1: new Quantity(
+        cards.filter((card) => card.rarity === 'd1' && card.count > 0).length,
+        cards.filter((card) => card.rarity === 'd1').length),
+      d2: new Quantity(
+        cards.filter((card) => card.rarity === 'd2' && card.count > 0).length,
+        cards.filter((card) => card.rarity === 'd2').length),
+      d3: new Quantity(
+        cards.filter((card) => card.rarity === 'd3' && card.count > 0).length,
+        cards.filter((card) => card.rarity === 'd3').length),
+      d4: new Quantity(
+        cards.filter((card) => card.rarity === 'd4' && card.count > 0).length,
+        cards.filter((card) => card.rarity === 'd4').length),
+    };
+  }
+
   hasAnyCard() {
     return this.cards.filter((card) => card.count > 0).length > 0;
   }
@@ -123,21 +161,8 @@ class Set {
     setHeadingElement.appendChild(setSummaryElement);
     this.updateSetSummaryText(setSummaryElement);
 
-    const boosterSummary = this.getBoosterSummary();
-
-    if (boosterSummary.length > 1) {
-      const boosterListElement = document.createElement('ul');
-      boosterListElement.classList.add('set-boosters');
-
-      boosterSummary.forEach((booster) => {
-        const boosterElement = document.createElement('li');
-        boosterElement.id = `booster-${booster.name}`;
-        this.updateBoosterSummaryHtml(boosterElement, booster);
-        boosterListElement.appendChild(boosterElement);
-      });
-
-      setElement.appendChild(boosterListElement);
-    }
+    const tableElement = this.renderTable();
+    setElement.appendChild(tableElement);
 
     const setCardsElement = document.createElement('div');
     setCardsElement.classList.add('set-cards');
@@ -154,6 +179,7 @@ class Set {
       cardElement.addEventListener('countUpdated', (cardEvent) => {
         this.updateSetSummaryText(setSummaryElement);
         this.updateBoosterSummaryText();
+        this.updateTable();
 
         const setEvent = new CustomEvent("cardCountUpdated", { detail: {card: cardEvent.detail, set: this} });
         setElement.dispatchEvent(setEvent);
@@ -165,6 +191,86 @@ class Set {
     });
 
     return setElement;
+  }
+
+  renderTable() {
+
+    const tableWrapperElement = document.createElement('div');
+    tableWrapperElement.classList.add('set-stats-table');
+
+    const tableElement = document.createElement('table');
+
+    // Build the header
+    const tableHeaderElement = document.createElement('thead');
+    tableHeaderElement.innerHTML = `
+<tr>
+  <th>Booster</th>
+  <th>Total</th>
+  <th>Regular</th>
+  <th>Secret</th>
+  <th>◆</th>
+  <th>◆◆</th>
+  <th>◆◆◆</th>
+  <th>◆◆◆◆</th>
+</tr>`;
+
+    tableElement.appendChild(tableHeaderElement);
+
+    // Add the data
+    const tableBodyElement = document.createElement('tbody');
+    const summary = this.getSetSummary();
+    summary
+      .filter((booster) => booster.name !== "Total")
+      .forEach((booster) => {
+        let boosterRowElement = this.renderTableRow(booster);
+        tableBodyElement.appendChild(boosterRowElement);
+      });
+
+    tableElement.appendChild(tableBodyElement);
+
+    const summaryTotal = summary.find((booster) => booster.name === "Total");
+
+    if (summaryTotal) {
+      const tableFooterElement = document.createElement('tfoot');
+      let boosterRowElement = this.renderTableRow(summaryTotal);
+      tableFooterElement.appendChild(boosterRowElement);
+      tableElement.appendChild(tableFooterElement);
+    }
+
+    tableWrapperElement.appendChild(tableElement);
+    return tableWrapperElement;
+  }
+
+  renderTableRow(booster) {
+    const boosterRowElement = document.createElement('tr');
+    boosterRowElement.id = `${this.id}-${booster.name}-stats`;
+    boosterRowElement.innerHTML = `
+<td>${booster.name}</td>
+<td>${booster.total.current}/${booster.total.total}</td>
+<td>${booster.regular.current}/${booster.regular.total}</td>
+<td>${booster.special.current}/${booster.special.total}</td>
+<td>${booster.d1.current}/${booster.d1.total}</td>
+<td>${booster.d2.current}/${booster.d2.total}</td>
+<td>${booster.d3.current}/${booster.d3.total}</td>
+<td>${booster.d4.current}/${booster.d4.total}</td>`;
+
+    return boosterRowElement;
+  }
+
+  updateTable() {
+    const summary = this.getSetSummary();
+    summary.forEach((booster) => {
+      const boosterRowElement = document.getElementById(`${this.id}-${booster.name}-stats`);
+      boosterRowElement.innerHTML = `
+<td>${booster.name}</td>
+<td>${booster.total.current}/${booster.total.total}</td>
+<td>${booster.regular.current}/${booster.regular.total}</td>
+<td>${booster.special.current}/${booster.special.total}</td>
+<td>${booster.d1.current}/${booster.d1.total}</td>
+<td>${booster.d2.current}/${booster.d2.total}</td>
+<td>${booster.d3.current}/${booster.d3.total}</td>
+<td>${booster.d4.current}/${booster.d4.total}</td>`;
+    });
   }
 
   updateSetSummaryText(setSummaryElement) {
@@ -305,6 +411,26 @@ class CardMappings {
     10: 'Supporter',
     11: 'Item',
     12: 'Tool'
+  }
+}
+
+class Quantity {
+  current = 0;
+  total = 0;
+  percent = 0;
+
+  constructor(current, total) {
+    this.update(current, total);
+  }
+
+  update(current, total) {
+    this.current = current;
+    this.total = total;
+    this.percent = (this.current / this.total) * 100;
+  }
+
+  render(hostElement) {
+    hostElement.innerHTML = `${this.current}/${this.total}`;
   }
 }
 
