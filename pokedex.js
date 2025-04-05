@@ -16,7 +16,7 @@ class CardCollection {
       const response = await fetch(`${SiteSettings.rootUrl}/cardDatabase.json`);
       const databaseSets = await response.json();
 
-      const sets = databaseSets.map((databaseSet) => {
+      const sets = databaseSets.reverse().map((databaseSet) => {
         const cards = databaseSet.cards.map((databaseCard) => {
           const count = repository.get(databaseSet.code, databaseCard.number);
           const boosters = databaseCard.boosters.split("").map(x => databaseSet.boosters[Number(x)]);
