@@ -82,7 +82,7 @@ main {
   .card {
     display: grid;
     grid-template-columns: 1fr auto;
-    grid-template-rows: repeat(2, 1fr);
+    grid-template-rows: 1fr auto;
     padding: 8px;
     width: 160px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
