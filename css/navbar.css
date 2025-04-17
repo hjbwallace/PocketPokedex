@@ -5,7 +5,7 @@
   grid-template-areas:
     "logo toggle"
     "content content";
-  background-color: #3B4CCA;
+  background-color: var(--main-blue);
   align-items: center;
 
   .logo {
@@ -69,6 +69,7 @@
 
     ul {
       display: flex;
+      background-color: var(--main-blue);
     }
 
     .toggle {
