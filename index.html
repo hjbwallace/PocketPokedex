@@ -22,7 +22,7 @@
             <ul id="collection-sets" class="dropdown-content">
             </ul>
           </li>
-          <li><a href="#stats">Statistics</a></li>
+          <li><a href="#data">Data</a></li>
         </ul>
       </div>
     </nav>
@@ -31,6 +31,8 @@
 
       <h1>Pocket Pokedex</h1>
       <h2 id="collection">My Collection</h2>
+
+      
 
       <form id="filter" method="GET" action=".">
         <input id="filter-query" type="text" name="q" placeholder="Search cards...">
@@ -61,9 +63,23 @@
       <section id="sets">
       </section>
 
-      <section id="stats">
-        <h2>Statistics</h2>
+      <section id="data">
+        <h2>Data Management</h2>
+        <div>
+          <h3>Export Data</h2>
+          <textarea id="export-content" readonly></textarea>
+          <button type="button" id="export-button">Export</button>
+        </div>
+        
+        <div>
+          <h3>Import Data</h2>
+          <textarea id="import-content"></textarea>
+          <button type="button" id="import-button">Import</button>
+        </div>
+
       </section>
+
+      
 
     </main>
   </body>
@@ -79,6 +95,7 @@
       collection.render();
       filter.render(collection);
       NavBar.render(collection);
+      DataManager.render(repository);
     };
   </script>
 </html>

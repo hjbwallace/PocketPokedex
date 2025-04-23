@@ -411,11 +411,9 @@ class Quantity {
 }
 
 class CardCountRepository {
-  _cards = {};
-
-  constructor(cards) {
-    if (cards)
-      this._cards = cards;
+  constructor(cards, updates) {
+    this._cards = cards ?? {};
+    this._updates = updates ?? {};
   }
 
   get(setCode, cardNumber) {
@@ -437,9 +435,11 @@ class CardCountRepository {
     } else if (cardCount > 0) {
       this._cards[setCode][cardNumber] = cardCount;
     }
+
+    this._updates[setCode] = new Date().toISOString();
   }
 
-  serialize() {
+  serializeRoute() {
     return CardCountSerializer.serializeRoute(this._cards);
   }
 }
@@ -448,25 +448,65 @@ class LocalCardCountRepository extends CardCountRepository {
   static #storageKey = 'pocketPokedex';
 
   constructor() {
-    var cards = LocalCardCountRepository.#loadCardsFromStorage();
-    super(cards);
+    var content = LocalCardCountRepository.#loadFromStorage();
+    super(content?.cards, content?.updates);
   }
 
   set(set, cardNumber, cardCount) {
     super.set(set, cardNumber, cardCount);
-    this.#saveCardsToStorage();
+    this.#saveToStorage();
   }
 
-  #saveCardsToStorage() {
-    localStorage.setItem(LocalCardCountRepository.#storageKey, JSON.stringify(this._cards));
+  #saveToStorage() {
+    const data = this.#serializeContent();
+    localStorage.setItem(LocalCardCountRepository.#storageKey, data);
   }
 
-  static #loadCardsFromStorage() {
-    const storedData = localStorage.getItem(LocalCardCountRepository.#storageKey);
-    if (storedData)
-      return JSON.parse(storedData);
+  static #loadFromStorage() {
+    const data = localStorage.getItem(LocalCardCountRepository.#storageKey);
+    return LocalCardCountRepository.#deserializeContent(data);
+  }
 
-    return null;
+  export() {
+    return this.#serializeContent();
+  }
+
+  import(data) {
+    if (!data) {
+      console.log('No data to import');
+      return;
+    }
+
+    const content = LocalCardCountRepository.#deserializeContent(data);
+
+    if (!content) {
+      console.log('No content to import');
+      return;
+    }
+
+    this._cards = content?.cards;
+    this._updates = content?.updates;
+
+    this.#saveToStorage();
+  }
+
+  #serializeContent() {
+    const json = JSON.stringify({ cards: this._cards, updates: this._updates });
+    return SiteSettings.encodeStorage ? btoa(json) : json;
+  }
+
+  static #deserializeContent(content) {
+    try {
+      if (!content)
+        return null;
+
+      return content.startsWith("{") 
+        ? JSON.parse(content) 
+        : JSON.parse(atob(content));
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
   }
 }
 
@@ -474,7 +514,7 @@ class RouteCardCountRepository extends CardCountRepository {
   constructor() {
     var serialized = window.location.search.slice(1);
     var cards = CardCountSerializer.deserializeRoute(serialized);
-    super(cards);
+    super(cards, null);
   }
 }
 
@@ -484,21 +524,30 @@ class CardCountSerializer {
 
     for (const set in cardCollection) {
       const cards = cardCollection[set];
-      const cardStrings = [];
+      const cardsString = CardCountSerializer.serializeSetCards(cards);
 
-      if (!Object.keys(cards).length > 0) 
+      if (!cardsString) 
         continue;
   
-      for (let i = 1; i <= Math.max(...Object.keys(cards)); i++) {
-        const count = cards[i] || 0;
-        cardStrings.push(`${count}`);
-      }
-  
-      const setString = `${set}-${cardStrings.join('')}`;
+      const setString = `${set}-${cardsString}`;
       serialized.push(setString);
     }
 
     return serialized.join('&');
+  }
+
+  static serializeSetCards(cards) {
+    const cardStrings = [];
+
+    if (!Object.keys(cards).length > 0) 
+      return null;
+
+    for (let i = 1; i <= Math.max(...Object.keys(cards)); i++) {
+      const count = cards[i] || 0;
+      cardStrings.push(`${count}`);
+    }
+
+    return cardStrings.join('');
   }
 
   static deserializeRoute(route) {
@@ -531,6 +580,7 @@ class CardCountSerializer {
 class SiteSettings {
   static isLocal = false;
   static rootUrl = '';
+  static encodeStorage = true;
 
   static init() {
     this.isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -546,7 +596,7 @@ function configureShareButton(cardCountRepository) {
   const linkValue = document.getElementById('link-value');
 
   generateLinkButton.addEventListener('click', () => {
-    const collectionSnapshot = cardCountRepository.serialize();
+    const collectionSnapshot = cardCountRepository.serializeRoute();
     const url = `${SiteSettings.rootUrl}/view?${collectionSnapshot}`;
     linkValue.value = url;
   });
@@ -567,8 +617,6 @@ class CardFilter {
     filter._rarity = params.get('rarity') || '';
     filter._booster = params.get('booster') || '';
 
-    console.log(JSON.stringify(filter));
-    
     return filter;
   }
 
@@ -669,6 +717,40 @@ class NavBar {
         navbarElement.className = "navbar";
       }
     });
+  }
+}
+
+class DataManager {
+  static render(repository) {
+    var exportButtonElement = document.getElementById("export-button");
+    exportButtonElement.addEventListener('click', () => this.onExport(repository));
+
+    var exportButtonElement = document.getElementById("import-button");
+    exportButtonElement.addEventListener('click', () => this.onImport(repository));
+  }
+
+  static onExport(repository) {
+    const exportAreaElement = document.getElementById("export-content");
+    const exportData = repository.export();
+    exportAreaElement.value = exportData;
+  }
+  
+  static onImport(repository) {
+    try {
+      const importAreaElement = document.getElementById("import-content");
+      const importData = importAreaElement.value;
+
+      if (!importData) {
+        return;
+      }
+
+      if (confirm('Are you sure you want to import this data?')) {
+        repository.import(importData);
+        window.location.reload();
+      }
+    } catch (error) {
+      alert(error.message);
+    }
   }
 }
 
