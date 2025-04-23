@@ -90,18 +90,6 @@ class Set {
     };
   }
 
-  getBoosterSummary() {
-    const regularCards = this.cards.filter((card) => card.rarity.startsWith('d'));
-
-    return this.boosters.map((booster) => {
-      return {
-        name: booster,
-        total: regularCards.filter((card) => card.boosters.includes(booster)).length,
-        owned: regularCards.filter((card) => card.boosters.includes(booster) && card.count > 0).length
-      }
-    })
-  }
-
   getSetSummary() {
     const setBoosters = this.boosters.length > 1
       ? [...this.boosters, "Total"]
@@ -178,7 +166,6 @@ class Set {
 
       cardElement.addEventListener('countUpdated', (cardEvent) => {
         this.updateSetSummaryText(setSummaryElement);
-        this.updateBoosterSummaryText();
         this.updateTable();
 
         const setEvent = new CustomEvent("cardCountUpdated", { detail: {card: cardEvent.detail, set: this} });
@@ -276,17 +263,6 @@ class Set {
   updateSetSummaryText(setSummaryElement) {
     const setSummary = this.getSummary();
     setSummaryElement.textContent = `${setSummary.owned}/${setSummary.total}`;
-  }
-
-  updateBoosterSummaryText() {
-    const boosterSummary = this.getBoosterSummary();
-    
-    if (boosterSummary.length > 1) {
-      boosterSummary.forEach((booster) => {
-        const element = document.getElementById(`booster-${booster.name}`);
-        this.updateBoosterSummaryHtml(element, booster);
-      })
-    }
   }
 
   updateBoosterSummaryHtml(boosterElement, booster) {
