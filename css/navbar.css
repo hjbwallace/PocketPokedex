@@ -1,4 +1,7 @@
 .navbar {
+  --logo-main:	#FFCB05;
+  --logo-highlight: #3C5AA6;
+
   display: grid;
   grid-template-columns: 1fr auto;
   grid-template-rows: auto auto;
@@ -10,8 +13,10 @@
 
   .logo {
     grid-area: logo;
+    font-style: italic;
     font-weight: bold;
-    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+    text-shadow: -1px 0 var(--logo-highlight), 0 1px var(--logo-highlight), 1px 0 var(--logo-highlight), 0 -1px var(--logo-highlight);
+    color: var(--logo-main);
   }
   
   .toggle {
@@ -19,6 +24,7 @@
 
     a {
       font-size:15px;
+      color: var(--logo-main);
     }
   }
   
@@ -44,7 +50,9 @@
     padding: 14px;
     text-decoration: none;
     color: white;
+  }
 
+  li, #navbar-toggle {
     &:hover:not(.logo) {
       background-color: #555;
     }
