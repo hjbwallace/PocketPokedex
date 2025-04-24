@@ -17,14 +17,19 @@ class CardCollection {
       const databaseSets = await response.json();
 
       const sets = databaseSets.reverse().map((databaseSet) => {
-        const cards = databaseSet.cards.map((databaseCard) => {
+        const setBoosters = databaseSet.boosters.map((booster) => {
+          const boosterType = databaseSet.cards.find(card => card.name.startsWith(booster))?.type;
+          return new Booster(booster, booster[0], boosterType);
+        });
+
+        const setCards = databaseSet.cards.map((databaseCard) => {
           const count = repository.get(databaseSet.code, databaseCard.number);
-          const boosters = databaseCard.boosters.split("").map(x => databaseSet.boosters[Number(x)]);
+          const boosters = databaseCard.boosters.split("").map(x => setBoosters[Number(x)]);
           const card = new Card(databaseCard.name, databaseCard.number, databaseCard.rarity, databaseCard.type, count, boosters);
           card.setVisibility(filter);
           return card;
         });
-        return new Set(databaseSet.name, databaseSet.code, Date.parse(databaseSet.releaseDate), cards, databaseSet.boosters);
+        return new Set(databaseSet.name, databaseSet.code, Date.parse(databaseSet.releaseDate), setCards, setBoosters);
       });
       return new CardCollection(sets, repository, settings, filter);
     } catch (error) {
@@ -59,7 +64,21 @@ class CardCollection {
   }
 
   getBoosterDetails() {
-    return this._sets.flatMap((set) => set.boosters.map((booster) => ({ name: booster, set: set.name })));
+    return this._sets.flatMap((set) => set.boosters.map((booster) => ({ name: booster.name, set: set.name })));
+  }
+}
+
+class Booster {
+  static TOTAL = new Booster("Total", "T", "Total");
+
+  code = '';
+  name = '';
+  type = '';
+
+  constructor(name, code, type) {
+    this.name = name;
+    this.code = code;
+    this.type = type;
   }
 }
 
@@ -92,18 +111,18 @@ class Set {
 
   getSetSummary() {
     const setBoosters = this.boosters.length > 1
-      ? [...this.boosters, "Total"]
+      ? [...this.boosters, Booster.TOTAL]
       : [...this.boosters];
 
     return setBoosters.map((booster) => {
-      const boosterCards = this.cards.filter((card) => card.boosters.includes(booster) || booster === "Total");
+      const boosterCards = this.cards.filter((card) => card.boosters.some(booster => booster.name === booster.name) || booster.name === Booster.TOTAL.name);
       return this.getCardCollectionSummary(booster, boosterCards);
     })
   }
 
-  getCardCollectionSummary(name, cards) {
+  getCardCollectionSummary(booster, cards) {
     return {
-      name: name,
+      name: booster.name,
       regular: new Quantity(
         cards.filter((card) => card.rarity.startsWith('d') && card.count > 0).length,
         cards.filter((card) => card.rarity.startsWith('d')).length),
@@ -157,7 +176,7 @@ class Set {
     setElement.appendChild(setCardsElement);
 
     this.cards.forEach((card) => {
-      const cardElement = card.render(settings);
+      const cardElement = card.render(settings, this.boosters);
 
       if (!cardElement)
         return;
@@ -292,7 +311,7 @@ class Card {
     this.isVisible = filter.appliesTo(this);
   }
 
-  render(settings) {
+  render(settings, setBoosters) {
     if (!this.isVisible)
       return null;
 
@@ -303,6 +322,15 @@ class Card {
 
     if (!this.rarity.startsWith('d'))
       cardElement.classList.add('secret');
+
+    if (setBoosters.length > 1 && this.boosters.length === 1) {
+      const cardBooster = this.boosters[0];
+      const boosterElement = document.createElement('span');
+      boosterElement.classList.add('booster');
+      boosterElement.classList.add(`card-${CardMappings.type[cardBooster.type ?? 0].toLowerCase()}`)
+      boosterElement.textContent = cardBooster.code;
+      cardElement.appendChild(boosterElement);
+    }
 
     const nameElement = document.createElement('span');
     nameElement.classList.add('name');
@@ -653,7 +681,7 @@ class CardFilter {
   }
 
   checkBooster(card) {
-    return !this._booster || card.boosters.includes(this._booster);
+    return !this._booster || card.boosters.some(booster => booster.name === this._booster);
   }
 
   render(cardCollection) {

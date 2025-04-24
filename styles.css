@@ -89,6 +89,19 @@ main {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     border-style: solid;
+    position: relative;
+
+    .booster {
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      padding: 2px 5px;
+      border-radius: 50%;
+      border-color: black;
+      border: 1px solid;
+      color: black;
+      font-weight: bold;
+    }
     
     &:hover:not(.card-missing) {
       filter: brightness(1.05);
@@ -119,50 +132,6 @@ main {
     }
   }
 
-  .card-grass {
-    background-color: var(--grass-light);
-  }
-
-  .card-fire {
-    background-color: var(--fire-light);
-  }
-
-  .card-water {
-    background-color: var(--water-light);
-  }
-
-  .card-lightning {
-    background-color: var(--lightning-light);
-  }
-
-  .card-fighting {
-    background-color: var(--fighting-light);
-  }
-
-  .card-psychic {
-    background-color: var(--psychic-light);
-  }
-
-  .card-darkness {
-    background-color: var(--darkness-light);
-  }
-
-  .card-metal {
-    background-color: var(--metal-light);
-  }
-
-  .card-dragon {
-    background-color: var(--dragon-light);
-  }
-
-  .card-colorless {
-    background-color: var(--colorless-light);
-  }
-
-  .card-tool, .card-item, .card-supporter {
-    background-color: var(--trainer);
-  }
-
   .card-missing {
     background-color: var(--inactive);
     color: var(--inactive-dark);
@@ -173,7 +142,55 @@ main {
       border-color: var(--inactive-dark);
       border-style: solid;
     }
+
+    .booster {
+      border-color: var(--inactive-dark);
+    }
   }
+}
+
+.card-grass {
+  background-color: var(--grass-light);
+}
+
+.card-fire {
+  background-color: var(--fire-light);
+}
+
+.card-water {
+  background-color: var(--water-light);
+}
+
+.card-lightning {
+  background-color: var(--lightning-light);
+}
+
+.card-fighting {
+  background-color: var(--fighting-light);
+}
+
+.card-psychic {
+  background-color: var(--psychic-light);
+}
+
+.card-darkness {
+  background-color: var(--darkness-light);
+}
+
+.card-metal {
+  background-color: var(--metal-light);
+}
+
+.card-dragon {
+  background-color: var(--dragon-light);
+}
+
+.card-colorless {
+  background-color: var(--colorless-light);
+}
+
+.card-tool, .card-item, .card-supporter {
+  background-color: var(--trainer);
 }
 
 .hidden {
