@@ -648,7 +648,8 @@ class CardFilter {
   checkRarity(card) {
     return !this._rarity
       || (card.rarity.startsWith('d') && this._rarity === 'regular')
-      || (!card.rarity.startsWith('d') && this._rarity === 'secret');
+      || (!card.rarity.startsWith('d') && this._rarity === 'secret')
+      || (card.rarity === this._rarity);
   }
 
   checkBooster(card) {
