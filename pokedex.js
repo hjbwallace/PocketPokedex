@@ -630,6 +630,10 @@ class SiteSettings {
     this.rootUrl = this.isLocal 
       ? `${window.location.protocol}//${window.location.host}`
       : `${window.location.protocol}//${window.location.host}/PocketPokedex`;
+
+    if (this.isLocal) {
+      document.title = 'Pocket Pokédex (DEV)'
+    }
   }
 }
 
