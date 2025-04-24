@@ -120,9 +120,9 @@ class Set {
       ? [...this.boosters, Booster.TOTAL]
       : [...this.boosters];
 
-    return setBoosters.map((booster) => {
-      const boosterCards = this.cards.filter((card) => card.boosters.some(booster => booster.name === booster.name) || booster.name === Booster.TOTAL.name);
-      return this.getCardCollectionSummary(booster, boosterCards);
+    return setBoosters.map((setBooster) => {
+      const boosterCards = this.cards.filter((card) => card.boosters.some(booster => booster.name === setBooster.name) || setBooster.name === Booster.TOTAL.name);
+      return this.getCardCollectionSummary(setBooster, boosterCards);
     })
   }
 
