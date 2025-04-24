@@ -25,7 +25,7 @@ class CardCollection {
         const setCards = databaseSet.cards.map((databaseCard) => {
           const count = repository.get(databaseSet.code, databaseCard.number);
           const boosters = databaseCard.boosters.split("").map(x => setBoosters[Number(x)]);
-          const card = new Card(databaseCard.name, databaseCard.number, databaseCard.rarity, databaseCard.type, count, boosters);
+          const card = new Card(databaseCard.name, databaseCard.number, databaseCard.rarity, databaseCard.type, count, databaseSet.code, boosters);
           card.setVisibility(filter);
           return card;
         });
@@ -59,8 +59,8 @@ class CardCollection {
     });
   }
 
-  getSetNavigationDetails() {
-    return this._sets.map((set) => ({ id: set.id, name: set.name }));
+  getSetDetails() {
+    return this._sets.map((set) => ({ id: set.id, name: set.name, code: set.code }));
   }
 
   getBoosterDetails() {
@@ -295,14 +295,16 @@ class Card {
   rarity = '';
   type = '';
   count = 0;
+  set = '';
   boosters = [];
 
-  constructor(name, number, rarity, type, count, boosters) {
+  constructor(name, number, rarity, type, count, set, boosters) {
     this.name = name;
     this.number = number;
     this.rarity = rarity;
     this.type = type;
     this.count = count;
+    this.set = set;
     this.boosters = boosters;
     this.isVisible = false;
   }
@@ -643,6 +645,7 @@ class CardFilter {
     filter._query = params.get('q') || '';
     filter._status = params.get('status') || '';
     filter._rarity = params.get('rarity') || '';
+    filter._set = params.get('set') || '';
     filter._booster = params.get('booster') || '';
 
     return filter;
@@ -653,6 +656,7 @@ class CardFilter {
       && this.checkQuery(card)
       && this.checkStatus(card)
       && this.checkRarity(card)
+      && this.checkSet(card)
       && this.checkBooster(card);
   }
 
@@ -680,20 +684,17 @@ class CardFilter {
       || (card.rarity === this._rarity);
   }
 
+  checkSet(card) {
+    return !this._set || card.set === this._set;
+  }
+
   checkBooster(card) {
     return !this._booster || card.boosters.some(booster => booster.name === this._booster);
   }
 
   render(cardCollection) {
-    var boosterInputElement = document.getElementById('filter-booster');
-    const boosterDetails = cardCollection.getBoosterDetails();
-
-    boosterDetails.forEach((booster) => {
-      const option = document.createElement('option');
-      option.value = booster.name;
-      option.text = `${booster.name} (${booster.set})`;
-      boosterInputElement.add(option);
-    })
+    this.renderSets(cardCollection);
+    this.renderBoosters(cardCollection);
 
     document.getElementById('filter-reset').addEventListener('click', () => {
       this.reset();
@@ -703,10 +704,35 @@ class CardFilter {
     this.setInputValues();
   }
 
+  renderSets(cardCollection) {
+    const setInputElement = document.getElementById('filter-set');
+    const setDetails = cardCollection.getSetDetails();
+
+    setDetails.forEach((set) => {
+      const option = document.createElement('option');
+      option.value = set.code;
+      option.text = `${set.name} (${set.code})`;
+      setInputElement.add(option);
+    })
+  }
+
+  renderBoosters(cardCollection) {
+    const boosterInputElement = document.getElementById('filter-booster');
+    const boosterDetails = cardCollection.getBoosterDetails();
+
+    boosterDetails.forEach((booster) => {
+      const option = document.createElement('option');
+      option.value = booster.name;
+      option.text = `${booster.name} (${booster.set})`;
+      boosterInputElement.add(option);
+    })
+  }
+
   setInputValues() {
     document.getElementById('filter-query').value = this._query;
     document.getElementById('filter-status').value = this._status;
     document.getElementById('filter-rarity').value = this._rarity;
+    document.getElementById('filter-set').value = this._set;
     document.getElementById('filter-booster').value = this._booster;
   }
 
@@ -714,6 +740,7 @@ class CardFilter {
     this._query = '';
     this._status = '';
     this._rarity = '';
+    this._set = '';
     this._booster = '';
   }
 }
@@ -725,7 +752,7 @@ class NavBar {
   }
 
   static #renderSetNavigation(cardCollection) {
-    var setDetails = cardCollection.getSetNavigationDetails();
+    var setDetails = cardCollection.getSetDetails();
     var collectionSetsElement = document.getElementById("collection-sets");
 
     setDetails.forEach(setDetails => {
