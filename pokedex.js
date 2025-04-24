@@ -679,6 +679,7 @@ class CardFilter {
 
   checkRarity(card) {
     return !this._rarity
+      || ((card.rarity === 'd3' || card.rarity === 'd4') && this._rarity === 'regular3')
       || (card.rarity.startsWith('d') && this._rarity === 'regular')
       || (!card.rarity.startsWith('d') && this._rarity === 'secret')
       || (card.rarity === this._rarity);
