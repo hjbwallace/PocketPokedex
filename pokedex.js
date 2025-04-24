@@ -21,7 +21,8 @@ class CardCollection {
       const response = await fetch(`${SiteSettings.rootUrl}/cardDatabase.json`);
       const databaseSets = await response.json();
 
-      const sets = databaseSets.reverse().map((databaseSet) => {
+      const sets = databaseSets.reverse().map((databaseSet, databaseSetIndex) => {
+        const setCanTrade = databaseSetIndex !== 0;
         const setBoosters = databaseSet.boosters.map((booster) => {
           const boosterType = databaseSet.cards.find(card => card.name.startsWith(booster))?.type;
           return new Booster(booster, booster[0], boosterType);
@@ -30,7 +31,7 @@ class CardCollection {
         const setCards = databaseSet.cards.map((databaseCard) => {
           const count = repository.get(databaseSet.code, databaseCard.number);
           const boosters = databaseCard.boosters.split("").map(x => setBoosters[Number(x)]);
-          const card = new Card(databaseCard.name, databaseCard.number, databaseCard.rarity, databaseCard.type, count, databaseSet.code, boosters);
+          const card = new Card(databaseCard.name, databaseCard.number, databaseCard.rarity, databaseCard.type, count, databaseSet.code, boosters, setCanTrade);
           card.setVisibility(filter);
           return card;
         });
@@ -307,8 +308,9 @@ class Card {
   count = 0;
   set = '';
   boosters = [];
+  canTrade = false;
 
-  constructor(name, number, rarity, type, count, set, boosters) {
+  constructor(name, number, rarity, type, count, set, boosters, canTrade) {
     this.name = name;
     this.number = number;
     this.rarity = rarity;
@@ -316,6 +318,7 @@ class Card {
     this.count = count;
     this.set = set;
     this.boosters = boosters;
+    this.canTrade = canTrade;
     this.isVisible = false;
   }
 
@@ -657,6 +660,7 @@ class CardFilter {
     filter._rarity = params.get('rarity') || '';
     filter._set = params.get('set') || '';
     filter._booster = params.get('booster') || '';
+    filter._trade = (params.get('trade') || '0') === '1';
 
     return filter;
   }
@@ -667,7 +671,8 @@ class CardFilter {
       && this.checkStatus(card)
       && this.checkRarity(card)
       && this.checkSet(card)
-      && this.checkBooster(card);
+      && this.checkBooster(card)
+      && this.checkCanTrade(card);
   }
 
   checkQuery(card) {
@@ -701,6 +706,10 @@ class CardFilter {
 
   checkBooster(card) {
     return !this._booster || card.boosters.some(booster => booster.name === this._booster);
+  }
+
+  checkCanTrade(card) {
+    return !this._trade || card.canTrade;
   }
 
   render(cardCollection) {
@@ -745,6 +754,7 @@ class CardFilter {
     document.getElementById('filter-rarity').value = this._rarity;
     document.getElementById('filter-set').value = this._set;
     document.getElementById('filter-booster').value = this._booster;
+    document.getElementById('filter-trade').checked = this._trade;
   }
 
   reset() {
@@ -753,6 +763,7 @@ class CardFilter {
     this._rarity = '';
     this._set = '';
     this._booster = '';
+    this._trade = false;
   }
 }
 
