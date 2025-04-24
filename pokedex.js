@@ -1,6 +1,11 @@
 class CollectionSettings {
   hideEmptySets = false;
+  hideSetStatistics = false;
   isReadOnly = false;
+
+  constructor() {
+    this.hideSetStatistics = window.location.search.indexOf('&hideSetStatistics') !== -1;
+  }
 }
 
 class CardCollection {
@@ -169,6 +174,11 @@ class Set {
     this.updateSetSummaryText(setSummaryElement);
 
     const tableElement = this.renderTable();
+
+    if (settings.hideSetStatistics) {
+      tableElement.classList.add('hidden');
+    }
+
     setElement.appendChild(tableElement);
 
     const setCardsElement = document.createElement('div');
