@@ -478,7 +478,7 @@ class LocalCardCountRepository extends CardCountRepository {
   static #storageKey = 'pocketPokedex';
 
   constructor() {
-    var content = LocalCardCountRepository.#loadFromStorage();
+    const content = LocalCardCountRepository.#loadFromStorage();
     super(content?.cards, content?.updates);
   }
 
@@ -542,8 +542,8 @@ class LocalCardCountRepository extends CardCountRepository {
 
 class RouteCardCountRepository extends CardCountRepository {
   constructor() {
-    var serialized = window.location.search.slice(1);
-    var cards = CardCountSerializer.deserializeRoute(serialized);
+    const serialized = window.location.search.slice(1);
+    const cards = CardCountSerializer.deserializeRoute(serialized);
     super(cards, null);
   }
 }
@@ -752,8 +752,8 @@ class NavBar {
   }
 
   static #renderSetNavigation(cardCollection) {
-    var setDetails = cardCollection.getSetDetails();
-    var collectionSetsElement = document.getElementById("collection-sets");
+    const setDetails = cardCollection.getSetDetails();
+    const collectionSetsElement = document.getElementById("collection-sets");
 
     setDetails.forEach(setDetails => {
       const listItem = document.createElement("li");
@@ -763,8 +763,8 @@ class NavBar {
   }
 
   static #configureToggle() {
-    var navbarElement = document.getElementById("navbar");
-    var navbarToggleElement = document.getElementById("navbar-toggle");
+    const navbarElement = document.getElementById("navbar");
+    const navbarToggleElement = document.getElementById("navbar-toggle");
 
     navbarToggleElement.addEventListener('click', () => {
       if (navbarElement.className === "navbar") {
@@ -778,11 +778,11 @@ class NavBar {
 
 class DataManager {
   static render(repository) {
-    var exportButtonElement = document.getElementById("export-button");
+    const exportButtonElement = document.getElementById("export-button");
     exportButtonElement.addEventListener('click', () => this.onExport(repository));
 
-    var exportButtonElement = document.getElementById("import-button");
-    exportButtonElement.addEventListener('click', () => this.onImport(repository));
+    const importButtonElement = document.getElementById("import-button");
+    importButtonElement.addEventListener('click', () => this.onImport(repository));
   }
 
   static onExport(repository) {
