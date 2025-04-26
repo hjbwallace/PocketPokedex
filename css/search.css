@@ -1,0 +1,39 @@
+.filter-form {
+  .filter-search {
+    margin: 8px 0;
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      font-size: larger;
+    }
+  }
+
+  .filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 8px 0;
+    font-size: small;
+    gap: 8px;
+
+    .filter-select {
+      min-width: 1px;
+      flex-basis: calc(50% - 4px);
+
+      select {
+        padding: 4px;
+        width: 100%;
+      }
+
+      @media (min-width: 768px) {
+        width: 160px;
+        flex-basis: unset;
+      }
+    }
+
+    .filter-checkbox {
+      align-content: center;
+    }
+  }
+}
