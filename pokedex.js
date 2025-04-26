@@ -4,7 +4,7 @@ class CollectionSettings {
   isReadOnly = false;
 
   constructor() {
-    this.hideSetStatistics = window.location.search.indexOf('&hideSetStatistics') !== -1;
+    this.hideSetStatistics = window.location.search.indexOf('&stats=0') !== -1;
   }
 }
 
@@ -665,6 +665,7 @@ class CardFilter {
     filter._set = params.get('set') || '';
     filter._booster = params.get('booster') || '';
     filter._trade = (params.get('trade') || '0') === '1';
+    filter._stats = (params.get('stats') || '') === '0';
 
     return filter;
   }
@@ -759,6 +760,7 @@ class CardFilter {
     document.getElementById('filter-set').value = this._set;
     document.getElementById('filter-booster').value = this._booster;
     document.getElementById('filter-trade').checked = this._trade;
+    document.getElementById('filter-stats').checked = this._stats;
   }
 
   reset() {
@@ -768,6 +770,7 @@ class CardFilter {
     this._set = '';
     this._booster = '';
     this._trade = false;
+    this._stats = false;
   }
 }
 
