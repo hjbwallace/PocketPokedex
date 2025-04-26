@@ -196,7 +196,9 @@ class Set {
 
       cardElement.addEventListener('countUpdated', (cardEvent) => {
         this.updateSetSummaryText(setSummaryElement);
-        this.updateTable();
+
+        if (!settings.hideSetStatistics) 
+          this.updateTable();
 
         const setEvent = new CustomEvent("cardCountUpdated", { detail: {card: cardEvent.detail, set: this} });
         setElement.dispatchEvent(setEvent);
