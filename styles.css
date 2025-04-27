@@ -40,6 +40,8 @@
   --inactive-dark: #929292;
   --highlight: #BEBEBEBE;
   --main-blue: #3B4CCA;
+  --logo-main:	#FFCB05;
+  --logo-highlight: #3C5AA6;
 }
 
 body {
