@@ -25,7 +25,7 @@ class CardCollection {
         const setCanTrade = databaseSetIndex !== 0;
         const setBoosters = databaseSet.boosters.map((booster) => {
           const boosterType = databaseSet.cards.find(card => card.name.startsWith(booster))?.type;
-          return new Booster(booster, booster[0], boosterType);
+          return new Booster(booster, booster[0], boosterType, databaseSet.code);
         });
 
         const setCards = databaseSet.cards.map((databaseCard) => {
@@ -70,21 +70,23 @@ class CardCollection {
   }
 
   getBoosterDetails() {
-    return this._sets.flatMap((set) => set.boosters.map((booster) => ({ name: booster.name, set: set.name })));
+    return this._sets.flatMap((set) => set.boosters.map((booster) => ({ id: booster.id, name: booster.name, set: set.name })));
   }
 }
 
 class Booster {
-  static TOTAL = new Booster("Total", "T", "Total");
+  static TOTAL = new Booster("Total", "T", "Total", '');
 
+  id = '';
   code = '';
   name = '';
   type = '';
 
-  constructor(name, code, type) {
+  constructor(name, code, type, setCode) {
     this.name = name;
     this.code = code;
     this.type = type;
+    this.id = `${setCode}-${code}`;
   }
 }
 
@@ -718,7 +720,7 @@ class CardFilter {
   }
 
   checkBooster(card) {
-    return !this._booster || card.boosters.some(booster => booster.name === this._booster);
+    return !this._booster || card.boosters.some(booster => booster.id === this._booster);
   }
 
   checkCanTrade(card) {
@@ -755,7 +757,7 @@ class CardFilter {
 
     boosterDetails.forEach((booster) => {
       const option = document.createElement('option');
-      option.value = booster.name;
+      option.value = booster.id;
       option.text = `${booster.name} (${booster.set})`;
       boosterInputElement.add(option);
     })
