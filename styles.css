@@ -216,7 +216,7 @@ main {
 
 .set-stats-table {
   overflow-x: auto;
-  padding-bottom: 1rem;
+  margin-bottom: 1rem;
   font-size: small;
   
   table {
