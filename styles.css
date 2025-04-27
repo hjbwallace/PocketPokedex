@@ -88,6 +88,13 @@ main {
 
     .set-summary {
       margin-left: 12px;
+      font-size: small;
+
+      &.set-complete {
+        font-size: larger;
+        -webkit-text-stroke: 1px var(--logo-highlight);
+        color: var(--logo-main);
+      }
     }
   }
 }

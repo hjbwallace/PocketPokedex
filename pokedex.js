@@ -302,7 +302,16 @@ class Set {
 
   updateSetSummaryText(setSummaryElement) {
     const setSummary = this.getSummary();
-    setSummaryElement.textContent = `${setSummary.owned}/${setSummary.total}`;
+    const percentage = ((setSummary.owned/setSummary.total) * 100).toFixed(0);
+
+    if (percentage == 100) {
+      setSummaryElement.textContent = '★';
+      setSummaryElement.classList.add("set-complete");
+      
+    } else {
+      setSummaryElement.textContent = `${percentage}%`;
+      setSummaryElement.classList.remove("set-complete");
+    }
   }
 
   updateBoosterSummaryHtml(boosterElement, booster) {
