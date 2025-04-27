@@ -91,11 +91,11 @@
         </ul>
       </div>
 
-      <div>
+      <!-- <div>
         <button id="generate-link">Generate Link</button>
         <input id="link-value" type="text" readonly>
         <button id="copy-link">Copy to Clipboard</button>
-      </div>
+      </div> -->
 
       <section id="sets">
       </section>
@@ -116,8 +116,6 @@
 
       </section>
 
-      
-
     </main>
   </body>
   <script>
@@ -126,8 +124,6 @@
       const settings = new CollectionSettings();
       const filter = CardFilter.fromRoute(window.location.search);
       const collection = await CardCollection.build(repository, settings, filter);
-
-      configureShareButton(repository);
 
       collection.render();
       filter.render(collection);
