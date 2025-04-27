@@ -166,11 +166,17 @@ class Set {
     setHeadingElement.classList.add('set-heading');
     setElement.appendChild(setHeadingElement);
 
+    const setCodeElement = document.createElement('span');
+    setCodeElement.classList.add('set-code');
+    setCodeElement.textContent = this.code;
+    setHeadingElement.appendChild(setCodeElement);
+
     const setNameElement = document.createElement('h3');
     setNameElement.textContent = this.name;
     setHeadingElement.appendChild(setNameElement);
 
     const setSummaryElement = document.createElement('span');
+    setSummaryElement.classList.add('set-summary');
     setHeadingElement.appendChild(setSummaryElement);
     this.updateSetSummaryText(setSummaryElement);
 
