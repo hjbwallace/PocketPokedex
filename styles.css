@@ -75,6 +75,7 @@ main {
   .set-heading {
     display: flex;
     align-items: center;
+    cursor: pointer;
 
     .set-code {
       margin-right: 12px;
@@ -88,10 +89,6 @@ main {
     .set-summary {
       margin-left: 12px;
     }
-  }
-
-  h3 {
-    cursor: pointer;
   }
 }
 

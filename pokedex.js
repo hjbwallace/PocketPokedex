@@ -213,7 +213,7 @@ class Set {
       })
     });
 
-    setNameElement.addEventListener('click', () => {
+    setHeadingElement.addEventListener('click', () => {
       setCardsElement.classList.toggle('hidden');
     });
 
