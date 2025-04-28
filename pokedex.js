@@ -724,6 +724,8 @@ class CardFilter {
       || (this._rarity === 'regular2' && (card.rarity === 'd1' || card.rarity === 'd2'))
       || (this._rarity === 'regular' && card.rarity.startsWith('d'))
       || (this._rarity === 'secret' && !card.rarity.startsWith('d'))
+      || (this._rarity === 'trade' && (card.rarity.startsWith('d') || card.rarity === 's1'))
+      || (this._rarity === 'trade2' && (card.rarity === 'd3' || card.rarity === 'd4' || card.rarity === 's1'))
       || (card.rarity === this._rarity);
   }
 
