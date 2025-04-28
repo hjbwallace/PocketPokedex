@@ -170,6 +170,46 @@ main {
     .booster {
       border-color: var(--inactive-dark);
     }
+
+    &.card-grass {
+      border-color: var(--grass-light);
+    }
+
+    &.card-fire {
+      border-color: var(--fire-light);
+    }
+
+    &.card-water {
+      border-color: var(--water-light);
+    }
+
+    &.card-lightning {
+      border-color: var(--lightning-light);
+    }
+
+    &.card-fighting {
+      border-color: var(--fighting-light);
+    }
+
+    &.card-psychic {
+      border-color: var(--psychic-light);
+    }
+
+    &.card-darkness {
+      border-color: var(--darkness-light);
+    }
+
+    &.card-metal {
+      border-color: var(--metal);
+    }
+
+    &.card-dragon {
+      border-color: var(--dragon-light);
+    }
+
+    &.card-colorless {
+      border-color: var(--colorless);
+    }
   }
 }
 
