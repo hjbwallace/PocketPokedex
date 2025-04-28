@@ -110,10 +110,14 @@ main {
     grid-template-rows: 1fr auto;
     padding: 8px;
     width: 160px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5);
     border-radius: 8px;
+    box-sizing: border-box;
     border-style: solid;
     position: relative;
+    border: 0px;
+    border-left: 12px solid;
+    cursor: pointer;
 
     .booster {
       position: absolute;
@@ -132,7 +136,7 @@ main {
     }
 
     &.secret {
-      box-shadow: 0 4px 8px 0 lightgoldenrodyellow;
+      outline: 2px solid gold;
     }
 
     .name {
@@ -145,116 +149,84 @@ main {
     }
 
     .count {
-      grid-column: 2;
-      grid-row: 1 / -1;
       display: flex;
       align-items: center;
+      grid-column: 2;
+      grid-row: 1 / -1;
       font-weight: bold;
       padding: 8px;
       background-color: var(--colorless);
       border-radius: 4px;
+      border-style: solid;
+      cursor: pointer;
     }
+  }
+
+  .card-grass {
+    border-color: var(--grass);
+    background-color: var(--grass-light);
+  }
+
+  .card-fire {
+    border-color: var(--fire);
+    background-color: var(--fire-light);
+  }
+
+  .card-water {
+    border-color: var(--water);
+    background-color: var(--water-light);
+  }
+
+  .card-lightning {
+    border-color: var(--lightning);
+    background-color: var(--lightning-light);
+  }
+
+  .card-fighting {
+    border-color: var(--fighting);
+    background-color: var(--fighting-light);
+  }
+
+  .card-psychic {
+    border-color: var(--psychic);
+    background-color: var(--psychic-light);
+  }
+
+  .card-darkness {
+    border-color: var(--darkness);
+    background-color: var(--darkness-light);
+  }
+
+  .card-metal {
+    border-color: var(--metal);
+    background-color: var(--metal-light);
+  }
+
+  .card-dragon {
+    border-color: var(--dragon);
+    background-color: var(--dragon-light);
+  }
+
+  .card-colorless {
+    border-color: var(--colorless);
+    background-color: var(--colorless-light);
+  }
+
+  .card-tool, .card-item, .card-supporter {
+    border-color: var(--inactive-dark);
+    background-color: var(--trainer);
   }
 
   .card-missing {
     background-color: var(--inactive);
     color: var(--inactive-dark);
-    border-color: var(--inactive-dark);
 
     .count {
       color: var(--inactive-dark);
       border-color: var(--inactive-dark);
-      border-style: solid;
-    }
-
-    .booster {
-      border-color: var(--inactive-dark);
-    }
-
-    &.card-grass {
-      border-color: var(--grass-light);
-    }
-
-    &.card-fire {
-      border-color: var(--fire-light);
-    }
-
-    &.card-water {
-      border-color: var(--water-light);
-    }
-
-    &.card-lightning {
-      border-color: var(--lightning-light);
-    }
-
-    &.card-fighting {
-      border-color: var(--fighting-light);
-    }
-
-    &.card-psychic {
-      border-color: var(--psychic-light);
-    }
-
-    &.card-darkness {
-      border-color: var(--darkness-light);
-    }
-
-    &.card-metal {
-      border-color: var(--metal);
-    }
-
-    &.card-dragon {
-      border-color: var(--dragon-light);
-    }
-
-    &.card-colorless {
-      border-color: var(--colorless);
+      
     }
   }
-}
-
-.card-grass {
-  background-color: var(--grass-light);
-}
-
-.card-fire {
-  background-color: var(--fire-light);
-}
-
-.card-water {
-  background-color: var(--water-light);
-}
-
-.card-lightning {
-  background-color: var(--lightning-light);
-}
-
-.card-fighting {
-  background-color: var(--fighting-light);
-}
-
-.card-psychic {
-  background-color: var(--psychic-light);
-}
-
-.card-darkness {
-  background-color: var(--darkness-light);
-}
-
-.card-metal {
-  background-color: var(--metal-light);
-}
-
-.card-dragon {
-  background-color: var(--dragon-light);
-}
-
-.card-colorless {
-  background-color: var(--colorless-light);
-}
-
-.card-tool, .card-item, .card-supporter {
-  background-color: var(--trainer);
 }
 
 .hidden {
