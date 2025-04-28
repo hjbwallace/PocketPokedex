@@ -681,6 +681,7 @@ class CardFilter {
     filter._query = params.get('q') || '';
     filter._status = params.get('status') || '';
     filter._rarity = params.get('rarity') || '';
+    filter._type = params.get('type') || '';
     filter._set = params.get('set') || '';
     filter._booster = params.get('booster') || '';
     filter._trade = (params.get('trade') || '0') === '1';
@@ -694,6 +695,7 @@ class CardFilter {
       && this.checkQuery(card)
       && this.checkStatus(card)
       && this.checkRarity(card)
+      && this.checkType(card)
       && this.checkSet(card)
       && this.checkBooster(card)
       && this.checkCanTrade(card);
@@ -725,6 +727,10 @@ class CardFilter {
       || (card.rarity === this._rarity);
   }
 
+  checkType(card) {
+    return !this._type || card.type == this._type;
+  }
+
   checkSet(card) {
     return !this._set || card.set === this._set;
   }
@@ -741,6 +747,7 @@ class CardFilter {
     this.renderSets(cardCollection);
     this.renderBoosters(cardCollection);
     this.renderRarities();
+    this.renderTypes();
 
     document.getElementById('filter-reset').addEventListener('click', () => {
       this.reset();
@@ -785,10 +792,22 @@ class CardFilter {
     });
   }
 
+  renderTypes() {
+    const typeInputElement = document.getElementById('filter-type');
+
+    Object.entries(CardMappings.type).forEach(([key, value]) => {
+      const option = document.createElement('option');
+      option.value = key;
+      option.text = value;
+      typeInputElement.add(option);
+    });
+  }
+
   setInputValues() {
     document.getElementById('filter-query').value = this._query;
     document.getElementById('filter-status').value = this._status;
     document.getElementById('filter-rarity').value = this._rarity;
+    document.getElementById('filter-type').value = this._type;
     document.getElementById('filter-set').value = this._set;
     document.getElementById('filter-booster').value = this._booster;
     document.getElementById('filter-trade').checked = this._trade;
@@ -799,6 +818,7 @@ class CardFilter {
     this._query = '';
     this._status = '';
     this._rarity = '';
+    this._type = '';
     this._set = '';
     this._booster = '';
     this._trade = false;
