@@ -718,9 +718,10 @@ class CardFilter {
 
   checkRarity(card) {
     return !this._rarity
-      || ((card.rarity === 'd3' || card.rarity === 'd4') && this._rarity === 'regular3')
-      || (card.rarity.startsWith('d') && this._rarity === 'regular')
-      || (!card.rarity.startsWith('d') && this._rarity === 'secret')
+      || (this._rarity === 'regular3' && (card.rarity === 'd3' || card.rarity === 'd4'))
+      || (this._rarity === 'regular2' && (card.rarity === 'd1' || card.rarity === 'd2'))
+      || (this._rarity === 'regular' && card.rarity.startsWith('d'))
+      || (this._rarity === 'secret' && !card.rarity.startsWith('d'))
       || (card.rarity === this._rarity);
   }
 
