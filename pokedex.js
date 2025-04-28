@@ -740,6 +740,7 @@ class CardFilter {
   render(cardCollection) {
     this.renderSets(cardCollection);
     this.renderBoosters(cardCollection);
+    this.renderRarities();
 
     document.getElementById('filter-reset').addEventListener('click', () => {
       this.reset();
@@ -771,6 +772,17 @@ class CardFilter {
       option.text = `${booster.name} (${booster.set})`;
       boosterInputElement.add(option);
     })
+  }
+
+  renderRarities() {
+    const rarityInputElement = document.getElementById('filter-rarity');
+
+    Object.entries(CardMappings.rarity).forEach(([key, value]) => {
+      const option = document.createElement('option');
+      option.value = key;
+      option.text = value;
+      rarityInputElement.add(option);
+    });
   }
 
   setInputValues() {
