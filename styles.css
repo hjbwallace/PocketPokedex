@@ -139,6 +139,18 @@ main {
       outline: 2px solid gold;
     }
 
+    &.shiny {
+      outline: 2px solid cyan;
+    }
+
+    &.crown {
+      outline: 2px solid gold;
+
+      .count {
+        background-color: gold;
+      }
+    }
+
     .name {
       font-weight: bold;
     }
@@ -224,7 +236,6 @@ main {
     .count {
       color: var(--inactive-dark);
       border-color: var(--inactive-dark);
-      
     }
   }
 }

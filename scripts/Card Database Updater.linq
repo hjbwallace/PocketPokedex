@@ -119,7 +119,12 @@ public static class SetDownloader
 
 		var code = imgSrc.Split("/").Last().Split(".").First();
 
-		return $"{code[0]}{(char.IsDigit(code.Last()) ? code.Last() : "1")}";
+		return $"{GetRarityCode(code)}{(char.IsDigit(code.Last()) ? code.Last() : "1")}";
+	}
+	
+	private static char GetRarityCode(string name)
+	{
+		return name == "shiny" ? 'z' : name[0];
 	}
 
 	private static int GetSetNumberFromTableData(IEnumerable<HtmlNode> tableData)

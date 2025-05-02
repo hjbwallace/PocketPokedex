@@ -137,6 +137,12 @@ class Set {
       special: new Quantity(
         cards.filter((card) => !card.rarity.startsWith('d') && card.count > 0).length,
         cards.filter((card) => !card.rarity.startsWith('d')).length),
+      shiny: new Quantity(
+        cards.filter((card) => card.rarity.startsWith('z') && card.count > 0).length,
+        cards.filter((card) => card.rarity.startsWith('z')).length),
+      crown: new Quantity(
+        cards.filter((card) => card.rarity.startsWith('c') && card.count > 0).length,
+        cards.filter((card) => card.rarity.startsWith('c')).length),
       total: new Quantity(
         cards.filter((card) => card.count > 0).length,
         cards.length),
@@ -227,23 +233,23 @@ class Set {
 
     const tableElement = document.createElement('table');
 
-    // Build the header
     const tableHeaderElement = document.createElement('thead');
     tableHeaderElement.innerHTML = `
 <tr>
   <th>Booster</th>
-  <th>Total</th>
   <th>Regular</th>
-  <th>Secret</th>
   <th>◆</th>
   <th>◆◆</th>
   <th>◆◆◆</th>
   <th>◆◆◆◆</th>
+  <th>Secret</th>
+  <th>Shiny</th>
+  <th>Crown</th>
+  <th>Total</th>
 </tr>`;
 
     tableElement.appendChild(tableHeaderElement);
 
-    // Add the data
     const tableBodyElement = document.createElement('tbody');
     const summary = this.getSetSummary();
     summary
@@ -271,15 +277,7 @@ class Set {
   renderTableRow(booster) {
     const boosterRowElement = document.createElement('tr');
     boosterRowElement.id = `${this.id}-${booster.name}-stats`;
-    boosterRowElement.innerHTML = `
-<td>${booster.name}</td>
-<td>${booster.total.current}/${booster.total.total}</td>
-<td>${booster.regular.current}/${booster.regular.total}</td>
-<td>${booster.special.current}/${booster.special.total}</td>
-<td>${booster.d1.current}/${booster.d1.total}</td>
-<td>${booster.d2.current}/${booster.d2.total}</td>
-<td>${booster.d3.current}/${booster.d3.total}</td>
-<td>${booster.d4.current}/${booster.d4.total}</td>`;
+    this.updateTableRow(booster, boosterRowElement);
 
     return boosterRowElement;
   }
@@ -288,16 +286,22 @@ class Set {
     const summary = this.getSetSummary();
     summary.forEach((booster) => {
       const boosterRowElement = document.getElementById(`${this.id}-${booster.name}-stats`);
-      boosterRowElement.innerHTML = `
+      this.updateTableRow(booster, boosterRowElement);
+    });
+  }
+
+  updateTableRow(booster, boosterRowElement) {
+    boosterRowElement.innerHTML = `
 <td>${booster.name}</td>
-<td>${booster.total.current}/${booster.total.total}</td>
 <td>${booster.regular.current}/${booster.regular.total}</td>
-<td>${booster.special.current}/${booster.special.total}</td>
 <td>${booster.d1.current}/${booster.d1.total}</td>
 <td>${booster.d2.current}/${booster.d2.total}</td>
 <td>${booster.d3.current}/${booster.d3.total}</td>
-<td>${booster.d4.current}/${booster.d4.total}</td>`;
-    });
+<td>${booster.d4.current}/${booster.d4.total}</td>
+<td>${booster.special.current}/${booster.special.total}</td>
+<td>${booster.shiny.current}/${booster.shiny.total}</td>
+<td>${booster.crown.current}/${booster.crown.total}</td>
+<td>${booster.total.current}/${booster.total.total}</td>`;
   }
 
   updateSetSummaryText(setSummaryElement) {
@@ -354,8 +358,14 @@ class Card {
     cardElement.classList.add(`card-${CardMappings.type[this.type].toLowerCase()}`);
     cardElement.classList.add(`card-missing`);
 
-    if (!this.rarity.startsWith('d'))
+    if (this.rarity.startsWith('s'))
       cardElement.classList.add('secret');
+
+    if (this.rarity.startsWith('z'))
+      cardElement.classList.add('shiny');
+
+    if (this.rarity.startsWith('c'))
+      cardElement.classList.add('crown');
 
     if (setBoosters.length > 1 && this.boosters.length === 1) {
       const cardBooster = this.boosters[0];
@@ -432,6 +442,8 @@ class CardMappings {
     s1: '★',
     s2: '★★',
     s3: '★★★',
+    z1: '✸',
+    z2: '✸✸',
     c1: '♚',
   };
   
@@ -724,6 +736,7 @@ class CardFilter {
       || (this._rarity === 'regular2' && (card.rarity === 'd1' || card.rarity === 'd2'))
       || (this._rarity === 'regular' && card.rarity.startsWith('d'))
       || (this._rarity === 'secret' && !card.rarity.startsWith('d'))
+      || (this._rarity === 'shiny' && card.rarity.startsWith('z'))
       || (this._rarity === 'trade' && (card.rarity.startsWith('d') || card.rarity === 's1'))
       || (this._rarity === 'trade2' && (card.rarity === 'd3' || card.rarity === 'd4' || card.rarity === 's1'))
       || (card.rarity === this._rarity);
