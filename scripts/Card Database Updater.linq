@@ -28,9 +28,13 @@ public static class CardDatabase
 	public static void Update(Set[] sets)
 	{
 		Console.WriteLine($"Updating card database: {FilePath}");
-		
+
 		var mappedSets = MapSets(sets);
-		var json = JsonSerializer.Serialize(mappedSets);
+		var json = JsonSerializer.Serialize(mappedSets)
+			.Replace(@"[{""name""", "[" + Environment.NewLine + "   " + @"{""name""")
+			.Replace(@",{""name""", Environment.NewLine + "  ," + @"{""name""")
+			.Replace("]}]", "]}" + Environment.NewLine + "]");
+
 		File.WriteAllText(FilePath, json);
 	}
 	
