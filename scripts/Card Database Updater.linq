@@ -130,7 +130,7 @@ public static class SetDownloader
 	
 	private static char GetRarityCode(string name)
 	{
-		return name == "shiny" ? 'z' : name[0];
+		return name.StartsWith("shiny") ? 'z' : name[0];
 	}
 
 	private static int GetSetNumberFromTableData(IEnumerable<HtmlNode> tableData)
