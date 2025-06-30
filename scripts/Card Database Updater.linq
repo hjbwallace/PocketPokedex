@@ -18,6 +18,7 @@ var sets = new[]
 	SetDownloader.Download("Shining Revelry", "A2b", new DateTime(2025, 03, 27)),
 	SetDownloader.Download("Celestial Guardians", "A3", new DateTime(2025, 04, 30)),
 	SetDownloader.Download("Extradimensional Crisis", "A3a", new DateTime(2025, 05, 29)),
+	SetDownloader.Download("Eevee Grove", "A3b", new DateTime(2025, 06, 26)),
 };
 
 CardDatabase.Update(sets);
