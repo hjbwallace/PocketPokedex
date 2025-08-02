@@ -9,6 +9,8 @@
   <DisableMyExtensions>true</DisableMyExtensions>
 </Query>
 
+// SITE: https://www.serebii.net/tcgpocket/
+
 var sets = new[] 
 {
 	SetDownloader.Download("Genetic Apex", "A1", new DateTime(2024, 10, 30)),
@@ -19,6 +21,7 @@ var sets = new[]
 	SetDownloader.Download("Celestial Guardians", "A3", new DateTime(2025, 04, 30)),
 	SetDownloader.Download("Extradimensional Crisis", "A3a", new DateTime(2025, 05, 29)),
 	SetDownloader.Download("Eevee Grove", "A3b", new DateTime(2025, 06, 26)),
+	SetDownloader.Download("Wisdom of Sea and Sky", "A4", new DateTime(2025, 07, 30)),
 };
 
 CardDatabase.Update(sets);
