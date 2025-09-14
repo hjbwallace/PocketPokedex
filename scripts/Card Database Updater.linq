@@ -22,6 +22,7 @@ var sets = new[]
 	SetDownloader.Download("Extradimensional Crisis", "A3a", new DateTime(2025, 05, 29)),
 	SetDownloader.Download("Eevee Grove", "A3b", new DateTime(2025, 06, 26)),
 	SetDownloader.Download("Wisdom of Sea and Sky", "A4", new DateTime(2025, 07, 30)),
+	SetDownloader.Download("Secluded Springs", "A4a", new DateTime(2025, 08, 28)),
 };
 
 CardDatabase.Update(sets);
