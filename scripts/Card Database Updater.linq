@@ -23,6 +23,8 @@ var sets = new[]
 	SetDownloader.Download("Eevee Grove", "A3b", new DateTime(2025, 06, 26)),
 	SetDownloader.Download("Wisdom of Sea and Sky", "A4", new DateTime(2025, 07, 30)),
 	SetDownloader.Download("Secluded Springs", "A4a", new DateTime(2025, 08, 28)),
+	SetDownloader.Download("Deluxe Pack ex", "A4b", new DateTime(2025, 09, 30)),
+	SetDownloader.Download("Mega Rising", "B1", new DateTime(2025, 10, 30)),
 };
 
 CardDatabase.Update(sets);
@@ -112,14 +114,25 @@ public static class SetDownloader
 	private static Card ParseCardFromRow(HtmlNode x)
 	{
 		var tableData = x.ChildNodes.Where(a => a.Name == "td");
-		return new Card
+		var name = GetNameFromTableData(tableData);
+
+		try
 		{
-			Rarity = GetRarityFromTableData(tableData),
-			Number = GetSetNumberFromTableData(tableData),
-			Name = GetNameFromTableData(tableData),
-			Type = GetTypeFromTableData(tableData),
-			Boosters = GetBoostersFromTableData(tableData),
-		};
+
+			return new Card
+			{
+				Rarity = GetRarityFromTableData(tableData),
+				Number = GetSetNumberFromTableData(tableData),
+				Name = name,
+				Type = GetTypeFromTableData(tableData),
+				Boosters = GetBoostersFromTableData(tableData),
+			};
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine("Failed to parse data for card: " + name);
+			throw;
+		}
 	}
 
 	private static string GetRarityFromTableData(IEnumerable<HtmlNode> tableData)
@@ -155,12 +168,15 @@ public static class SetDownloader
 	private static CardType GetTypeFromTableData(IEnumerable<HtmlNode> tableData)
 	{
 		var rowDescendants = tableData.Skip(3).First().Descendants();
-		var colorType = rowDescendants
-			.FirstOrDefault(x => x.Name == "img")?
-			.GetAttributeValue("src", "").Split("/").Last()?.Trim().Replace(".png", "").Replace("electric", "lightning");
+		var imgElement = rowDescendants.FirstOrDefault(x => x.Name == "img");
 
-		if (!string.IsNullOrWhiteSpace(colorType))
-			return Enum.Parse<CardType>(colorType, true);
+		if (imgElement != null)
+		{
+			var colorType = imgElement.GetAttributeValue("src", "").Split("/").Last()?.Trim().Replace(".png", "").Replace("electric", "lightning");
+			return Enum.TryParse<CardType>(colorType, true, out var cardType)
+				? cardType
+				: CardType.Colorless;
+		}
 
 		var type = rowDescendants.First().InnerText?.Trim()
 			.Replace("Trainer", "Item")
