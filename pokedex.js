@@ -25,7 +25,7 @@ class CardCollection {
         const setCanTrade = databaseSetIndex !== 0;
         const setBoosters = databaseSet.boosters.map((booster) => {
           const boosterType = databaseSet.cards.find(card => card.name.startsWith(booster))?.type;
-          return new Booster(booster, booster[0], boosterType, databaseSet.code);
+          return new Booster(booster, booster.startsWith('Mega ') ? booster[5] : booster[0], boosterType, databaseSet.code);
         });
 
         const setCards = databaseSet.cards.map((databaseCard) => {
